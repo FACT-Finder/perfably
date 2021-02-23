@@ -61,6 +61,6 @@ const useMetrics = ({keys, limit, start, end, sort, project}: MetricRequest): Fl
         fetch(`./project/${project}/value?${query}`)
             .then((res) => res.json())
             .then((data) => setData(data.map((m: Metric) => ({__key: m.key, ...m.values}))));
-    }, []);
+    });
     return data;
 };
