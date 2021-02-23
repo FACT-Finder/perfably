@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
 	"sort"
@@ -16,6 +15,7 @@ import (
 	"github.com/coreos/go-semver/semver"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 )
 
 func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
@@ -37,7 +37,7 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 		ids, err := client.SMembers(context.Background(), reportsKey).Result()
 		if err != nil {
 			w.WriteHeader(http.StatusBadGateway)
-			io.WriteString(w, fmt.Sprintf("redis get failed: %s", err))
+			writeString(w, fmt.Sprintf("redis get failed: %s", err))
 			return
 		}
 
@@ -46,6 +46,11 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			sortedFilteredReportIds, err = sortedFilteredSemverSlice(ids, startStr, endStr, sortDirection)
 		} else {
 			sortedFilteredReportIds, err = sortedFilteredIntSlice(ids, startStr, endStr, sortDirection)
+		}
+
+		if (err != nil) {
+			badRequest(w, fmt.Sprintf("could not parse ids: %s", err))
+			return
 		}
 
 		limit, _ := strconv.Atoi(limitStr)
@@ -66,7 +71,7 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 		values, err := client.MGet(context.Background(), metrics...).Result()
 		if err != nil {
 			w.WriteHeader(http.StatusBadGateway)
-			io.WriteString(w, fmt.Sprintf("redis get failed: %s", err))
+			writeString(w, fmt.Sprintf("redis get failed: %s", err))
 			return
 		}
 
@@ -83,7 +88,10 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			result = append(result, entry)
 		}
 
-		json.NewEncoder(w).Encode(result)
+		err = json.NewEncoder(w).Encode(result)
+		if (err != nil) {
+			log.Error().Err(err).Msg("could not encode to json")
+		}
 	}
 }
 

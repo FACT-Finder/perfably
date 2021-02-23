@@ -37,5 +37,8 @@ func main() {
 	})
 	r := router.New(cfg, client)
 	fmt.Println("Listening on", addr)
-	server.Start(r, addr)
+	err = server.Start(r, addr)
+	if err != nil {
+		log.Fatal().Err(err).Msg("could not start server")
+	}
 }
