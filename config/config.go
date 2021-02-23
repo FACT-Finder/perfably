@@ -1,24 +1,24 @@
 package config
 
 type Config struct {
-	Projects map[string]*Project `yaml:"projects"`
+	Projects map[string]*Project `yaml:"projects" json:"projects"`
 }
 
 type Project struct {
-	Name       string       `yaml:"name"`
-	IDType     string       `yaml:"id_type"`
-	Layers     []string     `yaml:"pattern"`
-	Dashboards []*Dashboard `yaml:"dashboards"`
+	Name       string       `yaml:"name" json:"name"`
+	IDType     string       `yaml:"id_type" json:"idType"`
+	Layers     []string     `yaml:"pattern" json:"layers"`
+	Dashboards []*Dashboard `yaml:"dashboards" json:"dashboards"`
 }
 
 type Dashboard struct {
-	Name   string   `yaml:"name"`
-	Charts []*Chart `yaml:"charts"`
+	Name   string   `yaml:"name" json:"name"`
+	Charts []*Chart `yaml:"charts" json:"charts"`
 }
 
 type Chart struct {
-	Name    string   `yaml:"name"`
-	Metrics []string `yaml:"metrics"`
+	Name    string   `yaml:"name" json:"name"`
+	Metrics []string `yaml:"metrics" json:"metrics"`
 }
 
 const (
