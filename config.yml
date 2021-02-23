@@ -1,0 +1,5 @@
+projects:
+    ff:
+        id_type: semver
+        pattern: [channel, group, metric]
+        dashboards:
