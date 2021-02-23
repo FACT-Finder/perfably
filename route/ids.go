@@ -66,35 +66,6 @@ func Ids(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 	}
 }
 
-func toSemvers(ids []string) (semver.Versions, error) {
-	versions := semver.Versions{}
-	for _, id := range ids {
-		if ver, err := toSemver(id); err == nil {
-			versions = append(versions, ver)
-		} else {
-			return versions, fmt.Errorf("could not parse: %s", id)
-		}
-	}
-	return versions, nil
-}
-
-func toSemver(id string) (*semver.Version, error) {
-	if ver, err := semver.NewVersion(id); err == nil {
-		return ver, nil
-	}
-	if _, err := strconv.ParseInt(id, 10, 64); err == nil {
-		return &semver.Version{PreRelease: semver.PreRelease(id)}, nil
-	}
-	return nil, fmt.Errorf("could not parse: %s", id)
-}
-
-func toStringSemver(version *semver.Version) string {
-	if version.Major == 0 && version.Minor == 0 && version.Patch == 0 {
-		return string(version.PreRelease)
-	}
-	return version.String()
-}
-
 func sortedInt(ids []string) ([]string, error) {
 	asInts := []int64{}
 
