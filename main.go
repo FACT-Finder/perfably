@@ -2,24 +2,27 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/FACT-Finder/perfably/config"
+	"github.com/FACT-Finder/perfably/logger"
 	"github.com/FACT-Finder/perfably/router"
 	"github.com/FACT-Finder/perfably/server"
 	"github.com/go-redis/redis/v8"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	logger.Init(zerolog.ErrorLevel)
 	if len(os.Args) != 2 {
-		log.Fatalln("Requires on config parameter")
+		log.Fatal().Msg("Requires on config parameter")
 		return
 	}
 
 	cfg, err := config.New(os.Args[1])
 	if err != nil {
-		log.Fatalln("Could not read config", err)
+		log.Fatal().Err(err).Msg("Could not read config")
 		return
 	}
 
