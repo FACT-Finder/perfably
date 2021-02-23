@@ -26,6 +26,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "touch build/KEEP",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier -w 'src/*.{ts,tsx}'",
