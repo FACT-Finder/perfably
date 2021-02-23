@@ -4,14 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
+
+	"strings"
 
 	"github.com/FACT-Finder/perfably/config"
 	"github.com/FACT-Finder/perfably/rediskey"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
-	"strings"
 )
 
 func Metrics(cfg *config.Config, client *redis.Client) http.HandlerFunc {
@@ -36,7 +36,7 @@ func Metrics(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			layers := strings.Split(metric, ".")
 			if len(layers) != len(project.Layers) {
 				w.WriteHeader(http.StatusInternalServerError)
-				io.WriteString(w, fmt.Sprintf("redis key %s have %d layers", metric, len(project.Layers)))
+				writeString(w, fmt.Sprintf("redis key %s have %d layers", metric, len(project.Layers)))
 				return
 			}
 
@@ -54,6 +54,10 @@ func Metrics(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 				part = subPart
 			}
 		}
-		json.NewEncoder(w).Encode(result)
+		err = json.NewEncoder(w).Encode(result)
+		if (err != nil) {
+			w.WriteHeader(http.StatusInternalServerError)
+			writeString(w, fmt.Sprintf("could not encode to json: %s", err))
+		}
 	}
 }

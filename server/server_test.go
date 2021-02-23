@@ -74,10 +74,8 @@ func fakeInterrupt(t *testing.T) func() {
 	notifySignal = func(c chan<- os.Signal, sig ...os.Signal) {
 		assert.Contains(t, sig, os.Interrupt)
 		go func() {
-			select {
-			case <-time.After(100 * time.Millisecond):
-				c <- os.Interrupt
-			}
+			time.Sleep(100 * time.Millisecond)
+			c <- os.Interrupt
 		}()
 	}
 	return func() {

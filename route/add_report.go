@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -61,12 +60,12 @@ func AddReport(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 
 		if _, err := pipe.Exec(context.Background()); err != nil {
 			w.WriteHeader(http.StatusBadGateway)
-			io.WriteString(w, fmt.Sprintf("redis failed: %s", err))
+			writeString(w, fmt.Sprintf("redis failed: %s", err))
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		io.WriteString(w, "ok")
+		writeString(w, "ok")
 	}
 }
 

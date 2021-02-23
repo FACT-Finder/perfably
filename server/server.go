@@ -41,13 +41,11 @@ func shutdownOnInterruptSignal(server *http.Server, timeout time.Duration, shutd
 	notifySignal(interrupt, os.Interrupt)
 
 	go func() {
-		select {
-		case <-interrupt:
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-			if err := serverShutdown(server, ctx); err != nil {
-				shutdown <- err
-			}
+		<-interrupt
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		if err := serverShutdown(server, ctx); err != nil {
+			shutdown <- err
 		}
 	}()
 }

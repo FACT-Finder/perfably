@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
 	"sort"
@@ -34,7 +33,7 @@ func Ids(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 		ids, err := client.SMembers(context.Background(), reportsKey).Result()
 		if err != nil {
 			w.WriteHeader(http.StatusBadGateway)
-			io.WriteString(w, fmt.Sprintf("redis get failed: %s", err))
+			writeString(w, fmt.Sprintf("redis get failed: %s", err))
 			return
 		}
 		filteredIds := []string{}
@@ -53,7 +52,7 @@ func Ids(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, fmt.Sprintf("could not convert ids: %s", err))
+			writeString(w, fmt.Sprintf("could not convert ids: %s", err))
 			return
 		}
 
@@ -62,7 +61,11 @@ func Ids(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			limit = len(sortedIds)
 		}
 
-		json.NewEncoder(w).Encode(sortedIds[:int(math.Min(float64(len(sortedIds)), float64(limit)))])
+		err = json.NewEncoder(w).Encode(sortedIds[:int(math.Min(float64(len(sortedIds)), float64(limit)))])
+		if (err != nil) {
+			w.WriteHeader(http.StatusInternalServerError)
+			writeString(w, fmt.Sprintf("could not encode to json: %s", err))
+		}
 	}
 }
 
