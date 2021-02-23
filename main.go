@@ -11,13 +11,6 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type DataPoint map[string]float64
-
-type ReportEntry struct {
-	Key    string
-	Values DataPoint
-}
-
 func main() {
 	if len(os.Args) != 2 {
 		log.Fatalln("Requires on config parameter")
