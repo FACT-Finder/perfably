@@ -13,3 +13,10 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+/ui/node_modules
+/ui/build
+/.idea
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
