@@ -41,6 +41,11 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			return
 		}
 
+		if len(ids) == 0 {
+			_ = json.NewEncoder(w).Encode([]model.ReportEntry{})
+			return
+		}
+
 		var sortedFilteredReportIds []string
 		if project.IDType == config.ReportIDTypeSemver {
 			sortedFilteredReportIds, err = sortedFilteredSemverSlice(ids, startStr, endStr, sortDirection)
