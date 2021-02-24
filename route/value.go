@@ -60,6 +60,11 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 
 		reportIds := sortedFilteredReportIds[:int(math.Min(float64(len(sortedFilteredReportIds)), float64(limit)))]
 
+		if len(reportIds) == 0 {
+			_ = json.NewEncoder(w).Encode([]model.ReportEntry{})
+			return
+		}
+
 		metrics := []string{}
 
 		for _, reportID := range reportIds {
