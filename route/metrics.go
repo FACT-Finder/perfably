@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
 	"strings"
 
 	"github.com/FACT-Finder/perfably/config"
@@ -55,7 +54,7 @@ func Metrics(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			}
 		}
 		err = json.NewEncoder(w).Encode(result)
-		if (err != nil) {
+		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			writeString(w, fmt.Sprintf("could not encode to json: %s", err))
 		}

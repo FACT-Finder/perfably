@@ -25,7 +25,7 @@ func AddReport(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			return
 		}
 
-		if err := model.ValidId(project.IDType, vars["id"]); err != nil {
+		if err := model.ValidID(project.IDType, vars["id"]); err != nil {
 			badRequest(w, fmt.Sprintf("invalid report id %s must be a %s", vars["id"], project.IDType))
 			return
 		}

@@ -14,13 +14,13 @@ type ReportEntry struct {
 	Values DataPoint `json:"values"`
 }
 
-func ValidId(reportIDType, reportId string) (err error) {
+func ValidID(reportIDType, reportID string) (err error) {
 	switch reportIDType {
 	case config.ReportIDTypeInt:
-		_, err = strconv.ParseInt(reportId, 10, 64)
+		_, err = strconv.ParseInt(reportID, 10, 64)
 		return
 	case config.ReportIDTypeSemver:
-		_, err = semver.NewVersion(reportId)
+		_, err = semver.NewVersion(reportID)
 		return
 	default:
 		panic("invalid idType " + reportIDType)

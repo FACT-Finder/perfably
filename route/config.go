@@ -2,8 +2,9 @@ package route
 
 import (
 	"encoding/json"
-	"github.com/FACT-Finder/perfably/config"
 	"net/http"
+
+	"github.com/FACT-Finder/perfably/config"
 )
 
 func Config(cfg *config.Config) http.HandlerFunc {

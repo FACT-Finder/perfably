@@ -6,26 +6,26 @@ import (
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/gorilla/mux"
 )
 
-var notifySignal = signal.Notify
-var serverShutdown = func(server *http.Server, ctx context.Context) error {
-	return server.Shutdown(ctx)
-}
+var (
+	notifySignal   = signal.Notify
+	serverShutdown = func(server *http.Server, ctx context.Context) error {
+		return server.Shutdown(ctx)
+	}
+)
 
-// Start starts the http server
-func Start(mux *mux.Router, addr string) error {
-	server, shutdown := startServer(mux, addr)
+// Start starts the http server.
+func Start(handler http.Handler, addr string) error {
+	server, shutdown := startServer(handler, addr)
 	shutdownOnInterruptSignal(server, 2*time.Second, shutdown)
 	return waitForServerToClose(shutdown)
 }
 
-func startServer(mux *mux.Router, addr string) (*http.Server, chan error) {
+func startServer(handler http.Handler, addr string) (*http.Server, chan error) {
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: handler,
 	}
 
 	shutdown := make(chan error)

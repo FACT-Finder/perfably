@@ -48,7 +48,7 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 			sortedFilteredReportIds, err = sortedFilteredIntSlice(ids, startStr, endStr, sortDirection)
 		}
 
-		if (err != nil) {
+		if err != nil {
 			badRequest(w, fmt.Sprintf("could not parse ids: %s", err))
 			return
 		}
@@ -94,7 +94,7 @@ func Value(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 		}
 
 		err = json.NewEncoder(w).Encode(result)
-		if (err != nil) {
+		if err != nil {
 			log.Error().Err(err).Msg("could not encode to json")
 		}
 	}

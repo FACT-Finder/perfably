@@ -62,7 +62,7 @@ func Ids(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 		}
 
 		err = json.NewEncoder(w).Encode(sortedIds[:int(math.Min(float64(len(sortedIds)), float64(limit)))])
-		if (err != nil) {
+		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			writeString(w, fmt.Sprintf("could not encode to json: %s", err))
 		}

@@ -21,7 +21,6 @@ func BasicAuth(handler http.HandlerFunc, client *redis.Client, realm string) htt
 		}
 
 		hash, err := client.HGet(context.Background(), rediskey.Tokens(), user).Result()
-
 		if err != nil {
 			log.Error().Err(err).Msg("redis")
 			w.WriteHeader(http.StatusBadGateway)
