@@ -16,7 +16,7 @@ func New(cfg *config.Config, client *redis.Client) *mux.Router {
 	router.Methods("GET").Path("/project/{project}/id").HandlerFunc(route.Ids(cfg, client))
 	router.Methods("GET").Path("/project/{project}/metrics").HandlerFunc(route.Metrics(cfg, client))
 	router.Methods("GET").Path("/config").HandlerFunc(route.Config(cfg))
-	router.Methods("POST").Path("/project/{project}/report/{id}").HandlerFunc(route.AddReport(cfg, client))
+	router.Methods("POST").Path("/project/{project}/report/{id}").HandlerFunc(route.BasicAuth(route.AddReport(cfg, client), client, "perfably"))
 	router.PathPrefix("/").Handler(AddPrefix("/build", http.FileServer(http.FS(ui.FS))))
 	return router
 }
