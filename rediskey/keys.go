@@ -13,3 +13,7 @@ func ReportIDs(projectID string) string {
 func Metrics(projectID string) string {
 	return fmt.Sprintf("perfably.v1.project.%s.metric_ids", projectID)
 }
+
+func Tokens() string {
+	return "perfably.v1.tokens"
+}
