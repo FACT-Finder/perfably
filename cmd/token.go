@@ -80,7 +80,6 @@ func Token() *cli.Command {
 
 func listTokens(client *redis.Client) error {
 	names, err := client.HKeys(context.Background(), rediskey.Tokens()).Result()
-
 	if err != nil {
 		return fmt.Errorf("could not read from redis: %s", err)
 	}
@@ -96,7 +95,6 @@ func createToken(client *redis.Client, name string) error {
 	hashedPassword := token.CreatePassword(password, passwordStrength)
 
 	created, err := client.HSetNX(context.Background(), rediskey.Tokens(), name, hashedPassword).Result()
-
 	if err != nil {
 		return fmt.Errorf("could not write to redis: %s", err)
 	}
@@ -111,7 +109,6 @@ func createToken(client *redis.Client, name string) error {
 
 func removeToken(client *redis.Client, name string) error {
 	count, err := client.HDel(context.Background(), rediskey.Tokens(), name).Result()
-
 	if err != nil {
 		return fmt.Errorf("could not delete token: %s", err)
 	}

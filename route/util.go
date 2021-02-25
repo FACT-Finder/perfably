@@ -12,7 +12,7 @@ func badRequest(w http.ResponseWriter, err string) {
 	writeString(w, err)
 }
 
-func writeString(w http.ResponseWriter, msg string) {
+func writeString(w io.Writer, msg string) {
 	_, err := io.WriteString(w, msg)
 	if err != nil {
 		log.Warn().Err(err).Msg("could not write response")
