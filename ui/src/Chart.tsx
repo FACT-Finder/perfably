@@ -62,6 +62,6 @@ const useMetrics = ({keys, limit, start, end, sort, project}: MetricRequest): Fl
             .then((res) => res.json())
             .then((data) => setData(data.map((m: Metric) => ({__key: m.key, ...m.values}))));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [keys, limit, start, end, sort, project]);
     return data;
 };

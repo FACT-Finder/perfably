@@ -1,6 +1,16 @@
 import React from 'react';
 import {Config, ConfigDashboard, useConfig} from './Config';
-import {AppBar, Button, CircularProgress, Container, Paper, Toolbar, Typography} from '@material-ui/core';
+import {
+    AppBar,
+    Button,
+    CircularProgress,
+    Container,
+    Paper,
+    Toolbar,
+    Typography,
+    Menu,
+    MenuItem,
+} from '@material-ui/core';
 import {Chart} from './Chart';
 
 export const Root = () => {
@@ -18,8 +28,14 @@ export const Root = () => {
 };
 
 const WithConfig = ({config}: {config: Config}) => {
-    const [project] = React.useState(() => Object.keys(config.projects)[0]);
-    const [dashboard] = React.useState(() => config.projects[project].dashboards?.[0]);
+    const [project, setProject] = React.useState(() => Object.keys(config.projects)[0]);
+    const [dashboard, setDashboard] = React.useState(() => config.projects[project].dashboards?.[0]);
+
+    const projects = Object.keys(config.projects);
+    const dashboards = config.projects[project].dashboards ?? [];
+
+    const [projectAnchor, setProjectAnchor] = React.useState<null | HTMLElement>(null);
+    const [dashboardAnchor, setDashboardAnchor] = React.useState<null | HTMLElement>(null);
 
     return (
         <Container maxWidth="md">
@@ -28,16 +44,59 @@ const WithConfig = ({config}: {config: Config}) => {
                     <Typography variant="h6" style={{marginRight: 10}}>
                         Perfably
                     </Typography>
-                    <Button variant="outlined" color="inherit" style={{marginRight: 10}}>
-                        {project}
+
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        style={{marginRight: 10}}
+                        aria-haspopup="true"
+                        onClick={(event) => setProjectAnchor(event.currentTarget)}>
+                        {project ?? 'no project configured'}
                     </Button>
-                    {dashboard === undefined ? (
-                        'no dashboards configured'
-                    ) : (
-                        <Button variant="outlined" color="inherit">
-                            {dashboard.name}
-                        </Button>
-                    )}
+                    <Menu
+                        id="project-menu"
+                        anchorEl={projectAnchor}
+                        keepMounted
+                        open={Boolean(projectAnchor)}
+                        onClose={() => setProjectAnchor(null)}>
+                        {projects.map((project) => {
+                            return (
+                                <MenuItem
+                                    onClick={() => {
+                                        setProject(project);
+                                        setProjectAnchor(null);
+                                    }}>
+                                    {project}
+                                </MenuItem>
+                            );
+                        })}
+                    </Menu>
+
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        aria-haspopup="true"
+                        onClick={(event) => setDashboardAnchor(event.currentTarget)}>
+                        {dashboard?.name ?? 'no dashboard configured'}
+                    </Button>
+                    <Menu
+                        id="dashboard-menu"
+                        anchorEl={dashboardAnchor}
+                        keepMounted
+                        open={Boolean(dashboardAnchor)}
+                        onClose={() => setDashboardAnchor(null)}>
+                        {dashboards.map((dashboard) => {
+                            return (
+                                <MenuItem
+                                    onClick={() => {
+                                        setDashboard(dashboard);
+                                        setDashboardAnchor(null);
+                                    }}>
+                                    {dashboard.name}
+                                </MenuItem>
+                            );
+                        })}
+                    </Menu>
                 </Toolbar>
             </AppBar>
             {dashboard ? <Dashboard project={project} dashboard={dashboard} /> : undefined}
