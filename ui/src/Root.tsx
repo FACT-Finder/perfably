@@ -10,7 +10,7 @@ import {
     Typography,
     Menu,
     MenuItem,
-} from '@material-ui/core';
+} from '@mui/material';
 import {Chart} from './Chart';
 
 export const Root = () => {
