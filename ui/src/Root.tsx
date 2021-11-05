@@ -18,6 +18,7 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Chart} from './Chart';
 import {useIds} from './ids';
+import {useUrlChangableState} from './state';
 
 export const Root = () => {
     const config = useConfig();
@@ -34,22 +35,43 @@ export const Root = () => {
 };
 
 const WithConfig = ({config}: {config: Config}) => {
-    const [project, setProject] = React.useState(() => Object.keys(config.projects)[0]);
-    const [dashboard, setDashboard] = React.useState(() => config.projects[project].dashboards?.[0]);
+    const [{project, dashboard, filter}, setState] = useUrlChangableState();
+    React.useEffect(() => {
+        const projects = Object.keys(config.projects);
+        let nextState = {project, dashboard};
+        if (nextState.project === undefined || !projects.includes(nextState.project as string)) {
+            if (projects.length === 0) {
+                return;
+            }
+            nextState.project = projects[0];
+        }
+        const availableDashboards = config.projects[nextState.project!!].dashboards ?? [];
+
+        if (dashboard === undefined || availableDashboards[dashboard] === undefined) {
+            if (availableDashboards.length === 0) {
+                return;
+            }
+            nextState.dashboard = 0;
+        }
+        setState((c) => ({...c, ...nextState}));
+    }, [project, dashboard, setState, config]);
 
     const projects = Object.keys(config.projects);
-    const dashboards = config.projects[project].dashboards ?? [];
+    const dashboards = project ? config.projects?.[project]?.dashboards ?? [] : [];
 
     const [projectAnchor, setProjectAnchor] = React.useState<null | HTMLElement>(null);
     const [dashboardAnchor, setDashboardAnchor] = React.useState<null | HTMLElement>(null);
     const [filterAnchor, setFilterAnchor] = React.useState<null | HTMLElement>(null);
     const ids = useIds(project);
-    const [range, setRange] = React.useState<[number, number] | undefined>(undefined);
+
+    const start = ids.findIndex((id) => id === filter?.[0]);
+    const end = ids.findIndex((id) => id === filter?.[1]);
     React.useEffect(() => {
-        if (range === undefined && ids.length !== 0) {
-            setRange([Math.max(0, ids.length - 1 - 50), ids.length - 1]);
+        if (ids.length > 0 && (start === -1 || end === -1)) {
+            setState((c) => ({...c, filter: [ids[Math.max(0, ids.length - 1 - 50)], ids[ids.length - 1]]}));
         }
-    }, [ids, range]);
+    }, [ids, start, end, setState]);
+    const indexFilter: [number, number] | undefined = start !== -1 && end !== -1 ? [start, end] : undefined;
 
     return (
         <Box>
@@ -69,13 +91,13 @@ const WithConfig = ({config}: {config: Config}) => {
                             onClick={(event) => setDashboardAnchor(event.currentTarget)}
                             endIcon={<KeyboardArrowDownIcon />}
                         >
-                            Dashboard: {dashboard?.name ?? 'not configured'}
+                            Dashboard: {dashboards[dashboard ?? -1]?.name ?? 'not configured'}
                         </Button>
                         <Button
                             onClick={(event) => setFilterAnchor(event.currentTarget)}
                             endIcon={<KeyboardArrowDownIcon />}
                         >
-                            Filter: {range === undefined ? 'unknown' : `${ids[range[0]]} to ${ids[range[1]]}`}
+                            Filter: {filter === undefined ? 'unknown' : `${filter[0]} to ${filter[1]}`}
                         </Button>
                     </ButtonGroup>
                     <Menu
@@ -90,7 +112,7 @@ const WithConfig = ({config}: {config: Config}) => {
                                 <MenuItem
                                     key={project}
                                     onClick={() => {
-                                        setProject(project);
+                                        setState((c) => ({...c, project}));
                                         setProjectAnchor(null);
                                     }}
                                 >
@@ -106,12 +128,12 @@ const WithConfig = ({config}: {config: Config}) => {
                         open={Boolean(dashboardAnchor)}
                         onClose={() => setDashboardAnchor(null)}
                     >
-                        {dashboards.map((dashboard) => {
+                        {dashboards.map((dashboard, index) => {
                             return (
                                 <MenuItem
                                     key={dashboard.name}
                                     onClick={() => {
-                                        setDashboard(dashboard);
+                                        setState((c) => ({...c, dashboard: index}));
                                         setDashboardAnchor(null);
                                     }}
                                 >
@@ -135,17 +157,20 @@ const WithConfig = ({config}: {config: Config}) => {
                             style: {width: '100%', maxWidth: 500},
                         }}
                     >
-                        {range !== undefined ? (
+                        {indexFilter !== undefined ? (
                             <ClickAwayListener onClickAway={() => setFilterAnchor(null)}>
                                 <Box paddingX={4} paddingY={2}>
                                     <Slider
                                         valueLabelFormat={(value) => ids[value]}
                                         min={0}
                                         max={ids.length - 1}
-                                        value={range}
+                                        value={indexFilter}
                                         style={{paddingTop: 50}}
                                         valueLabelDisplay="on"
-                                        onChange={(_, value) => setRange(value as [number, number])}
+                                        onChange={(_, value) => {
+                                            const [left, right] = value as [number, number];
+                                            setState((c) => ({...c, filter: [ids[left], ids[right]]}));
+                                        }}
                                     />
                                 </Box>
                             </ClickAwayListener>
@@ -154,8 +179,8 @@ const WithConfig = ({config}: {config: Config}) => {
                 </Toolbar>
             </AppBar>
             <Box marginTop="100px" paddingX={3}>
-                {dashboard && range !== undefined ? (
-                    <Dashboard project={project} dashboard={dashboard} range={[ids[range[0]], ids[range[1]]]} />
+                {project !== undefined && dashboard !== undefined && dashboards[dashboard] && filter !== undefined ? (
+                    <Dashboard project={project} dashboard={dashboards[dashboard]} range={filter} />
                 ) : undefined}
             </Box>
         </Box>
