@@ -26,8 +26,7 @@ dockers:
   - goos: linux
     goarch: amd64
     goarm: ''
-    binaries:
-      - perfably
+    ids: [perfably]
     image_templates:
       - "perfably/perfably:unstable"
       - "perfably/perfably:{{ .RawVersion }}"
