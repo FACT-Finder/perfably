@@ -4,14 +4,20 @@ import {
     AppBar,
     Button,
     CircularProgress,
-    Container,
     Paper,
     Toolbar,
     Typography,
     Menu,
     MenuItem,
+    Slider,
+    ButtonGroup,
+    Box,
+    Popover,
+    ClickAwayListener,
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Chart} from './Chart';
+import {useIds} from './ids';
 
 export const Root = () => {
     const config = useConfig();
@@ -36,75 +42,135 @@ const WithConfig = ({config}: {config: Config}) => {
 
     const [projectAnchor, setProjectAnchor] = React.useState<null | HTMLElement>(null);
     const [dashboardAnchor, setDashboardAnchor] = React.useState<null | HTMLElement>(null);
+    const [filterAnchor, setFilterAnchor] = React.useState<null | HTMLElement>(null);
+    const ids = useIds(project);
+    const [range, setRange] = React.useState<[number, number] | undefined>(undefined);
+    React.useEffect(() => {
+        if (range === undefined && ids.length !== 0) {
+            setRange([Math.max(0, ids.length - 1 - 50), ids.length - 1]);
+        }
+    }, [ids, range]);
 
     return (
-        <Container maxWidth="md">
-            <AppBar position="static">
+        <Box>
+            <AppBar position="fixed">
                 <Toolbar>
-                    <Typography variant="h6" style={{marginRight: 10}}>
+                    <Typography variant="h6" style={{marginRight: 30}}>
                         Perfably
                     </Typography>
-
-                    <Button
-                        variant="outlined"
-                        color="inherit"
-                        style={{marginRight: 10}}
-                        aria-haspopup="true"
-                        onClick={(event) => setProjectAnchor(event.currentTarget)}>
-                        {project ?? 'no project configured'}
-                    </Button>
+                    <ButtonGroup variant="outlined" aria-label="outlined primary button group" color="inherit">
+                        <Button
+                            onClick={(event) => setProjectAnchor(event.currentTarget)}
+                            endIcon={<KeyboardArrowDownIcon />}
+                        >
+                            Project: {project ?? 'not configured'}
+                        </Button>
+                        <Button
+                            onClick={(event) => setDashboardAnchor(event.currentTarget)}
+                            endIcon={<KeyboardArrowDownIcon />}
+                        >
+                            Dashboard: {dashboard?.name ?? 'not configured'}
+                        </Button>
+                        <Button
+                            onClick={(event) => setFilterAnchor(event.currentTarget)}
+                            endIcon={<KeyboardArrowDownIcon />}
+                        >
+                            Filter: {range === undefined ? 'unknown' : `${ids[range[0]]} to ${ids[range[1]]}`}
+                        </Button>
+                    </ButtonGroup>
                     <Menu
                         id="project-menu"
                         anchorEl={projectAnchor}
                         keepMounted
                         open={Boolean(projectAnchor)}
-                        onClose={() => setProjectAnchor(null)}>
+                        onClose={() => setProjectAnchor(null)}
+                    >
                         {projects.map((project) => {
                             return (
                                 <MenuItem
+                                    key={project}
                                     onClick={() => {
                                         setProject(project);
                                         setProjectAnchor(null);
-                                    }}>
+                                    }}
+                                >
                                     {project}
                                 </MenuItem>
                             );
                         })}
                     </Menu>
-
-                    <Button
-                        variant="outlined"
-                        color="inherit"
-                        aria-haspopup="true"
-                        onClick={(event) => setDashboardAnchor(event.currentTarget)}>
-                        {dashboard?.name ?? 'no dashboard configured'}
-                    </Button>
                     <Menu
                         id="dashboard-menu"
                         anchorEl={dashboardAnchor}
                         keepMounted
                         open={Boolean(dashboardAnchor)}
-                        onClose={() => setDashboardAnchor(null)}>
+                        onClose={() => setDashboardAnchor(null)}
+                    >
                         {dashboards.map((dashboard) => {
                             return (
                                 <MenuItem
+                                    key={dashboard.name}
                                     onClick={() => {
                                         setDashboard(dashboard);
                                         setDashboardAnchor(null);
-                                    }}>
+                                    }}
+                                >
                                     {dashboard.name}
                                 </MenuItem>
                             );
                         })}
                     </Menu>
+                    <Popover
+                        anchorEl={filterAnchor}
+                        open={!!filterAnchor}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        PaperProps={{
+                            style: {width: '100%', maxWidth: 500},
+                        }}
+                    >
+                        {range !== undefined ? (
+                            <ClickAwayListener onClickAway={() => setFilterAnchor(null)}>
+                                <Box paddingX={4} paddingY={2}>
+                                    <Slider
+                                        valueLabelFormat={(value) => ids[value]}
+                                        min={0}
+                                        max={ids.length - 1}
+                                        value={range}
+                                        style={{paddingTop: 50}}
+                                        valueLabelDisplay="on"
+                                        onChange={(_, value) => setRange(value as [number, number])}
+                                    />
+                                </Box>
+                            </ClickAwayListener>
+                        ) : undefined}
+                    </Popover>
                 </Toolbar>
             </AppBar>
-            {dashboard ? <Dashboard project={project} dashboard={dashboard} /> : undefined}
-        </Container>
+            <Box marginTop="100px" paddingX={3}>
+                {dashboard && range !== undefined ? (
+                    <Dashboard project={project} dashboard={dashboard} range={[ids[range[0]], ids[range[1]]]} />
+                ) : undefined}
+            </Box>
+        </Box>
     );
 };
 
-const Dashboard = ({project, dashboard}: {project: string; dashboard: ConfigDashboard}) => {
+const Dashboard = ({
+    project,
+    dashboard,
+    range,
+}: {
+    project: string;
+    dashboard: ConfigDashboard;
+    range: [string, string];
+}) => {
     const charts = dashboard.charts ?? [];
 
     return (
@@ -115,7 +181,13 @@ const Dashboard = ({project, dashboard}: {project: string; dashboard: ConfigDash
                         <Typography variant="h4" align="center">
                             {chart.name}
                         </Typography>
-                        <Chart sort="asc" keys={chart.metrics ?? []} project={project} />
+                        <Chart
+                            sort="asc"
+                            keys={chart.metrics ?? []}
+                            project={project}
+                            start={range[0]}
+                            end={range[1]}
+                        />
                     </Paper>
                 );
             })}
