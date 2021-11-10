@@ -19,6 +19,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Chart} from './Chart';
 import {useIds} from './ids';
 import {useUrlChangableState} from './state';
+import {useDebounce} from './useDebounce';
 
 export const Root = () => {
     const config = useConfig();
@@ -56,6 +57,7 @@ const WithConfig = ({config}: {config: Config}) => {
         setState((c) => ({...c, ...nextState}));
     }, [project, dashboard, setState, config]);
 
+    const debouncedFilter = useDebounce(filter, 200);
     const projects = Object.keys(config.projects);
     const dashboards = project ? config.projects?.[project]?.dashboards ?? [] : [];
 
@@ -179,8 +181,11 @@ const WithConfig = ({config}: {config: Config}) => {
                 </Toolbar>
             </AppBar>
             <Box marginTop="100px" paddingX={3}>
-                {project !== undefined && dashboard !== undefined && dashboards[dashboard] && filter !== undefined ? (
-                    <Dashboard project={project} dashboard={dashboards[dashboard]} range={filter} />
+                {project !== undefined &&
+                dashboard !== undefined &&
+                dashboards[dashboard] &&
+                debouncedFilter !== undefined ? (
+                    <Dashboard project={project} dashboard={dashboards[dashboard]} range={debouncedFilter} />
                 ) : undefined}
             </Box>
         </Box>
