@@ -149,11 +149,11 @@ const WithConfig = ({config}: {config: Config}) => {
                         open={!!filterAnchor}
                         anchorOrigin={{
                             vertical: 'bottom',
-                            horizontal: 'center',
+                            horizontal: 'left',
                         }}
                         transformOrigin={{
                             vertical: 'top',
-                            horizontal: 'center',
+                            horizontal: 'left',
                         }}
                         PaperProps={{
                             style: {width: '100%', maxWidth: 500},
