@@ -209,6 +209,7 @@ const Dashboard = ({
                         <Chart
                             sort="asc"
                             keys={chart.metrics ?? []}
+                            unit={chart.unit}
                             project={project}
                             start={range[0]}
                             end={range[1]}

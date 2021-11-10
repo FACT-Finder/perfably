@@ -1,17 +1,19 @@
 import React from 'react';
 import {LineChart, CartesianGrid, XAxis, YAxis, Line, Tooltip, Legend, ResponsiveContainer} from 'recharts';
 import colorHash from 'color-hash';
+import {Unit} from './Config';
+import {bestUnit, isTimeUnit} from './unit';
 const cHash = new colorHash();
 
 export const Chart = (metrics: MetricRequest) => {
     const data = useMetrics(metrics);
     return (
         <ResponsiveContainer height={400}>
-            <LineChart data={data}>
+            <LineChart data={data.metrics}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="__key" />
-                <YAxis />
-                <Tooltip />
+                <YAxis unit={data.unit} />
+                <Tooltip formatter={(value) => (typeof value === 'number' ? data.format(value) : value)} />
                 <Legend />
                 {metrics.keys.map((name) => {
                     return (
@@ -29,13 +31,21 @@ interface Metric {
     values: DataPoint;
 }
 
+interface ChartData {
+    unit: string;
+    format: (value: number) => string;
+    metrics: FlatMetric[];
+}
+
 type FlatMetric = {
+    [x: string]: string | number;
     __key: string;
-} & DataPoint;
+};
 
 interface MetricRequest {
     sort: 'asc' | 'desc';
     keys: string[];
+    unit?: Unit;
     limit?: number;
     start?: string;
     end?: string;
@@ -45,8 +55,8 @@ interface MetricRequest {
 const param = (name: string, value?: string | number) =>
     value === undefined ? undefined : `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
 
-const useMetrics = ({keys, limit, start, end, sort, project}: MetricRequest): FlatMetric[] => {
-    const [data, setData] = React.useState<FlatMetric[]>([]);
+const useMetrics = ({keys, unit, limit, start, end, sort, project}: MetricRequest): ChartData => {
+    const [data, setData] = React.useState<ChartData>({unit: '', format: x => x.toString(), metrics: []});
 
     React.useEffect(() => {
         const query = [
@@ -60,8 +70,33 @@ const useMetrics = ({keys, limit, start, end, sort, project}: MetricRequest): Fl
             .join('&');
         fetch(`./project/${project}/value?${query}`)
             .then((res) => res.json())
-            .then((data) => setData(data.map((m: Metric) => ({__key: m.key, ...m.values}))));
+            .then((data) => transform(data, unit))
+            .then((data) => setData(data));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [keys, limit, start, end, sort, project]);
     return data;
+};
+
+const rescaleValues = (points: Record<string, number>, ratio: number): Record<string, number> => {
+    return Object.fromEntries(Object.entries(points).map(([k, v]) => [k, ratio * v]));
+};
+
+const transform = (data: Metric[], unit?: Unit): ChartData => {
+    if (isTimeUnit(unit)) {
+        const max = data.reduce(
+            (m, metric) => Object.values(metric.values).reduce((x, y) => Math.max(x, y), m),
+            -Infinity
+        );
+        const {unit: targetUnit, ratio, format} = bestUnit(unit, max);
+        return {
+            unit: targetUnit,
+            format,
+            metrics: data.map((m: Metric): FlatMetric => ({__key: m.key, ...rescaleValues(m.values, ratio)})),
+        };
+    }
+    return {
+        unit: unit || '',
+        format: x => x.toFixed(3),
+        metrics: data.map((m: Metric): FlatMetric => ({__key: m.key, ...m.values})),
+    };
 };
