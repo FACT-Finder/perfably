@@ -1,5 +1,17 @@
 projects:
     ff:
         id_type: semver
-        pattern: [channel, group, metric]
+        pattern: [name, metric]
         dashboards:
+          - name: 'overview'
+            charts:
+            - name: 'request durations'
+              unit: ms
+              metrics:
+                - add.avg
+                - delete.avg
+                - update.avg
+            - name: 'code coverage'
+              metrics:
+                - loc.total
+                - loc.covered
