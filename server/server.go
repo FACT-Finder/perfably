@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -38,7 +39,7 @@ func startServer(handler http.Handler, addr string) (*http.Server, chan error) {
 
 func shutdownOnInterruptSignal(server *http.Server, timeout time.Duration, shutdown chan<- error) {
 	interrupt := make(chan os.Signal, 1)
-	notifySignal(interrupt, os.Interrupt)
+	notifySignal(interrupt, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
 		<-interrupt
