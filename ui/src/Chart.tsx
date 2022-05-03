@@ -3,6 +3,8 @@ import {LineChart, CartesianGrid, XAxis, YAxis, Line, Tooltip, Legend, Responsiv
 import colorHash from 'color-hash';
 import {Unit} from './Config';
 import {bestUnit, isTimeUnit} from './unit';
+import {TooltipProps} from 'recharts/types/component/Tooltip';
+import {Typography, Paper, Box, Table, TableBody, TableCell, TableRow, Divider} from '@mui/material';
 const cHash = new colorHash();
 
 export const Chart = (metrics: MetricRequest) => {
@@ -11,13 +13,25 @@ export const Chart = (metrics: MetricRequest) => {
         <ResponsiveContainer height={400}>
             <LineChart data={data.metrics}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="__key" />
+                <XAxis dataKey="key" />
                 <YAxis unit={data.unit} />
-                <Tooltip formatter={(value) => (typeof value === 'number' ? data.format(value) : value)} />
+                <Tooltip
+                    cursor={true}
+                    trigger="hover"
+                    content={<TooltipBody />}
+                    formatter={(value: any) => (typeof value === 'number' ? data.format(value) : value)}
+                />
                 <Legend />
                 {metrics.keys.map((name) => {
                     return (
-                        <Line key={name} type="monotone" dataKey={name} stroke={cHash.hex(name)} activeDot={{r: 8}} />
+                        <Line
+                            key={name}
+                            type="monotone"
+                            dataKey={(item) => item.values[name]}
+                            name={name}
+                            stroke={cHash.hex(name)}
+                            activeDot={{r: 8}}
+                        />
                     );
                 })}
             </LineChart>
@@ -26,9 +40,15 @@ export const Chart = (metrics: MetricRequest) => {
 };
 
 type DataPoint = Record<string, number>;
+type MetricPoint = Record<string, MetricValue>;
+interface MetricValue {
+    value: string;
+    url?: string;
+}
 interface Metric {
     key: string;
     values: DataPoint;
+    meta: MetricPoint;
 }
 
 interface ChartData {
@@ -38,8 +58,9 @@ interface ChartData {
 }
 
 type FlatMetric = {
-    [x: string]: string | number;
-    __key: string;
+    values: Record<string, number>;
+    meta: Record<string, {value: string}>;
+    key: string;
 };
 
 interface MetricRequest {
@@ -56,7 +77,7 @@ const param = (name: string, value?: string | number) =>
     value === undefined ? undefined : `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
 
 const useMetrics = ({keys, unit, limit, start, end, sort, project}: MetricRequest): ChartData => {
-    const [data, setData] = React.useState<ChartData>({unit: '', format: x => x.toString(), metrics: []});
+    const [data, setData] = React.useState<ChartData>({unit: '', format: (x) => x.toString(), metrics: []});
 
     React.useEffect(() => {
         const query = [
@@ -91,12 +112,71 @@ const transform = (data: Metric[], unit?: Unit): ChartData => {
         return {
             unit: targetUnit,
             format,
-            metrics: data.map((m: Metric): FlatMetric => ({__key: m.key, ...rescaleValues(m.values, ratio)})),
+            metrics: data.map(
+                (m: Metric): FlatMetric => ({key: m.key, values: rescaleValues(m.values, ratio), meta: m.meta})
+            ),
         };
     }
     return {
         unit: unit || '',
-        format: x => x.toFixed(3),
-        metrics: data.map((m: Metric): FlatMetric => ({__key: m.key, ...m.values})),
+        format: (x) => x.toFixed(3),
+        metrics: data.map((m: Metric): FlatMetric => ({key: m.key, values: m.values, meta: m.meta})),
     };
+};
+
+interface RowData {
+    key: string;
+    name: string;
+    value: string;
+    color?: string;
+}
+const TooltipBody = ({active, payload, label, formatter}: TooltipProps<any, any>) => {
+    if (!active || !payload) {
+        return null;
+    }
+
+    const meta: MetricPoint = payload?.[0]?.payload?.meta ?? {};
+
+    const valueRows: RowData[] = payload.map((entry) => ({
+        key: 'value' + entry.name,
+        name: entry.name,
+        color: entry.color,
+        value: formatter?.(entry.value) ?? entry.value,
+    }));
+
+    const metaRows: RowData[] = Object.keys(meta)
+        .sort()
+        .map((key) => ({
+            key: 'meta' + key,
+            name: key,
+            value: meta[key].value,
+        }));
+
+    const renderKey = ({name, key, color}: RowData) => (
+        <Box key={key} paddingRight={1}>
+            <Typography style={{color: color}}>{name}:</Typography>
+        </Box>
+    );
+    const renderValue = ({value, key, color}: RowData) => (
+        <Typography key={key} style={{color: color}} align="right">
+            {value}
+        </Typography>
+    );
+
+    return (
+        <Paper>
+            <Box padding={1}>
+                <Typography variant="h5">{label}</Typography>
+                <Box display="flex">
+                    <Box flex={1}>{valueRows.map(renderKey)}</Box>
+                    <Box>{valueRows.map(renderValue)}</Box>
+                </Box>
+                <Divider />
+                <Box display="flex">
+                    <Box flex={1}>{metaRows.map(renderKey)}</Box>
+                    <Box>{metaRows.map(renderValue)}</Box>
+                </Box>
+            </Box>
+        </Paper>
+    );
 };
