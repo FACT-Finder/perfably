@@ -207,7 +207,7 @@ const Dashboard = ({
         <>
             {charts.map((chart) => {
                 return (
-                    <Paper elevation={5} style={{marginTop: 10, padding: 10}}>
+                    <Paper key={chart.name} elevation={5} style={{marginTop: 10, padding: 10}}>
                         <Typography variant="h4" align="center">
                             {chart.name}
                         </Typography>

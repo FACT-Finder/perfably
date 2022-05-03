@@ -11,21 +11,8 @@ import (
 )
 
 func main() {
-	logger.Init(zerolog.ErrorLevel)
+	logger.Init(zerolog.InfoLevel)
 	app := &cli.App{
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "redis-address",
-				Usage:   "address of redis server",
-				EnvVars: []string{"PERFABLY_REDIS_ADDRESS"},
-				Value:   ":6379",
-			},
-			&cli.StringFlag{
-				Name:    "redis-password",
-				EnvVars: []string{"PERFABLY_REDIS_PASSWORD"},
-				Usage:   "password of redis server",
-			},
-		},
 		Commands: []*cli.Command{
 			cmd.Serve(),
 			cmd.Token(),

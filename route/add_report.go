@@ -1,66 +1,50 @@
 package route
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/FACT-Finder/perfably/config"
-	"github.com/FACT-Finder/perfably/model"
-	"github.com/FACT-Finder/perfably/rediskey"
-	"github.com/go-redis/redis/v8"
+	"github.com/FACT-Finder/perfably/state"
+	"github.com/coreos/go-semver/semver"
 	"github.com/gorilla/mux"
 )
 
-func AddReport(cfg *config.Config, client *redis.Client) http.HandlerFunc {
+func AddReport(s *state.State) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
-		project, ok := cfg.Projects[vars["project"]]
+		id, err := semver.NewVersion(vars["id"])
+		if err != nil {
+			badRequest(w, fmt.Sprintf("invalid report id %s: %s", vars["id"], err))
+			return
+		}
+
+		project, ok := s.Projects[vars["project"]]
 		if !ok {
 			badRequest(w, fmt.Sprintf("project not found: %s", vars["project"]))
 			return
 		}
 
-		if err := model.ValidID(project.IDType, vars["id"]); err != nil {
-			badRequest(w, fmt.Sprintf("invalid report id %s must be a %s", vars["id"], project.IDType))
-			return
-		}
 		point, err := parseDataPoint(r)
 		if err != nil {
 			badRequest(w, fmt.Sprintf("could not parse request: %s", err))
 			return
 		}
 
-		metrics := []interface{}{}
-		for key := range point {
-			metrics = append(metrics, key)
-			layers := strings.Split(key, ".")
-			if len(layers) != len(project.Layers) {
-				badRequest(w, fmt.Sprintf("%s must have %d layers", key, len(project.Layers)))
-				return
-			}
-		}
+		project.Lock.Lock()
+		defer project.Lock.Unlock()
 
-		pipe := client.TxPipeline()
-
-		for metricID, value := range point {
-			metricKey := rediskey.Metric(vars["project"], vars["id"], metricID)
-			pipe.Set(context.Background(), metricKey, value, 0)
-		}
-
-		reportsKey := rediskey.ReportIDs(vars["project"])
-		pipe.SAdd(context.Background(), reportsKey, vars["id"])
-
-		metricsKey := rediskey.Metrics(vars["project"])
-		pipe.SAdd(context.Background(), metricsKey, metrics...)
-
-		if _, err := pipe.Exec(context.Background()); err != nil {
-			w.WriteHeader(http.StatusBadGateway)
-			writeString(w, fmt.Sprintf("redis failed: %s", err))
+		err = project.Add(&state.VersionDataLine{
+			Version: *id,
+			VersionData: state.VersionData{
+				Values: point,
+			},
+		})
+		if err != nil {
+			internalServerError(w, fmt.Sprintf("could not add line: %s", err))
 			return
 		}
 
@@ -69,8 +53,8 @@ func AddReport(cfg *config.Config, client *redis.Client) http.HandlerFunc {
 	}
 }
 
-func parseDataPoint(r *http.Request) (model.DataPoint, error) {
-	point := model.DataPoint{}
+func parseDataPoint(r *http.Request) (state.DataPoint, error) {
+	point := state.DataPoint{}
 
 	if strings.Contains(r.Header.Get("content-type"), "application/x-www-form-urlencoded") {
 		for key, values := range r.PostForm {

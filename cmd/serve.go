@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/FACT-Finder/perfably/auth"
 	"github.com/FACT-Finder/perfably/config"
 	"github.com/FACT-Finder/perfably/router"
 	"github.com/FACT-Finder/perfably/server"
-	"github.com/go-redis/redis/v8"
+	"github.com/FACT-Finder/perfably/state"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -24,9 +24,15 @@ func Serve() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:    "address",
-				Usage:   "perfably listen address",
+				Usage:   "the address to listen on",
 				EnvVars: []string{"PERFABLY_ADDRESS"},
 				Value:   ":8000",
+			},
+			&cli.StringFlag{
+				Name:    "state",
+				Usage:   "the state directory",
+				EnvVars: []string{"PERFABLY_STATE"},
+				Value:   "./data",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -34,17 +40,27 @@ func Serve() *cli.Command {
 			if err != nil {
 				return err
 			}
+			appState, err := state.ReadState(cfg, c.String("state"))
+			if err != nil {
+				return err
+			}
 
-			redisAddr := c.String("redis-address")
-			client := redis.NewClient(&redis.Options{
-				Addr:     redisAddr,
-				Password: c.String("redis-password"),
-			})
-			r := router.New(cfg, client)
+			users, err := auth.Parse(c.String("state"))
+			if err != nil {
+				return err
+			}
+			if err := users.HotReload(); err != nil {
+				return err
+			}
+
+			handler := router.New(cfg, appState, users)
 
 			listenAddr := c.String("address")
-			fmt.Println("Listening on", listenAddr)
-			return server.Start(r, listenAddr)
+			log.Info().Str("address", listenAddr).Msg("HTTP")
+			err = server.Start(handler, listenAddr)
+
+			appState.Close()
+			return err
 		},
 	}
 }

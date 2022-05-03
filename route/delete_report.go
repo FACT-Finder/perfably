@@ -1,56 +1,41 @@
 package route
 
 import (
-	"context"
 	"fmt"
 	"net/http"
+	"sort"
 
-	"github.com/FACT-Finder/perfably/config"
-	"github.com/FACT-Finder/perfably/model"
-	"github.com/FACT-Finder/perfably/rediskey"
-	"github.com/go-redis/redis/v8"
+	"github.com/FACT-Finder/perfably/state"
+	"github.com/coreos/go-semver/semver"
 	"github.com/gorilla/mux"
 )
 
-func DeleteReport(cfg *config.Config, client *redis.Client) http.HandlerFunc {
+func DeleteReport(s *state.State) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
-		project, ok := cfg.Projects[vars["project"]]
+		project, ok := s.Projects[vars["project"]]
 		if !ok {
 			badRequest(w, fmt.Sprintf("project not found: %s", vars["project"]))
 			return
 		}
 
-		if err := model.ValidID(project.IDType, vars["id"]); err != nil {
-			badRequest(w, fmt.Sprintf("invalid report id %s must be a %s", vars["id"], project.IDType))
-			return
-		}
-
-		metricsKey := rediskey.Metrics(vars["project"])
-		keys, err := client.SMembers(context.Background(), metricsKey).Result()
+		id, err := semver.NewVersion(vars["id"])
 		if err != nil {
-			badRequest(w, fmt.Sprintf("redis get failed: %s", err))
+			badRequest(w, fmt.Sprintf("invalid report id %s: %s", vars["id"], err))
 			return
 		}
 
-		pipe := client.TxPipeline()
+		project.Lock.Lock()
+		defer project.Lock.Unlock()
 
-		metrics := []string{}
-		for _, key := range keys {
-			metrics = append(metrics, rediskey.Metric(vars["project"], vars["id"], key))
+		idx := sort.Search(len(project.Versions), func(i int) bool {
+			return !project.Versions[i].LessThan(*id)
+		})
+		if idx < len(project.Versions) && *project.Versions[idx] == *id {
+			delete(project.Data, *id)
+			project.Versions = append(project.Versions[:idx], project.Versions[idx+1:]...)
 		}
-		pipe.Del(context.Background(), metrics...)
-
-		reportsKey := rediskey.ReportIDs(vars["project"])
-		pipe.SRem(context.Background(), reportsKey, vars["id"])
-
-		if _, err := pipe.Exec(context.Background()); err != nil {
-			w.WriteHeader(http.StatusBadGateway)
-			writeString(w, fmt.Sprintf("redis failed: %s", err))
-			return
-		}
-
 		w.WriteHeader(http.StatusOK)
 		writeString(w, "ok")
 	}

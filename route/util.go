@@ -11,6 +11,10 @@ func badRequest(w http.ResponseWriter, err string) {
 	w.WriteHeader(400)
 	writeString(w, err)
 }
+func internalServerError(w http.ResponseWriter, err string) {
+	w.WriteHeader(500)
+	writeString(w, err)
+}
 
 func writeString(w io.Writer, msg string) {
 	_, err := io.WriteString(w, msg)

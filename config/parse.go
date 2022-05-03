@@ -30,9 +30,6 @@ func New(path string) (*Config, error) {
 	}
 
 	for id, project := range config.Projects {
-		if project.IDType != ReportIDTypeSemver && project.IDType != ReportIDTypeInt {
-			return nil, fmt.Errorf("invalid id_type %s for project %s", project.IDType, id)
-		}
 		for _, dashboard := range project.Dashboards {
 			for _, chart := range dashboard.Charts {
 				_, valid := units[chart.Unit]

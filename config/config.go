@@ -6,7 +6,6 @@ type Config struct {
 
 type Project struct {
 	Name       string       `yaml:"name" json:"name"`
-	IDType     string       `yaml:"id_type" json:"idType"`
 	Layers     []string     `yaml:"pattern" json:"layers"`
 	Dashboards []*Dashboard `yaml:"dashboards" json:"dashboards"`
 }
@@ -23,9 +22,6 @@ type Chart struct {
 }
 
 const (
-	ReportIDTypeSemver = "semver"
-	ReportIDTypeInt    = "int"
-
 	UnitNanosecond  = "ns"
 	UnitMicrosecond = "us"
 	UnitMillisecond = "ms"
