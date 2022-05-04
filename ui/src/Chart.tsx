@@ -4,7 +4,8 @@ import colorHash from 'color-hash';
 import {Unit} from './Config';
 import {bestUnit, isTimeUnit} from './unit';
 import {TooltipProps} from 'recharts/types/component/Tooltip';
-import {Typography, Paper, Box, Table, TableBody, TableCell, TableRow, Divider} from '@mui/material';
+import {Typography, Paper, Box, Divider} from '@mui/material';
+import {useDebounce} from './useDebounce';
 const cHash = new colorHash();
 
 export const Chart = (metrics: MetricRequest) => {
@@ -76,7 +77,8 @@ interface MetricRequest {
 const param = (name: string, value?: string | number) =>
     value === undefined ? undefined : `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
 
-const useMetrics = ({keys, unit, limit, start, end, sort, project}: MetricRequest): ChartData => {
+const useMetrics = (request: MetricRequest): ChartData => {
+    const {keys, unit, limit, start, end, sort, project} = useDebounce(request, 300);
     const [data, setData] = React.useState<ChartData>({unit: '', format: (x) => x.toString(), metrics: []});
 
     React.useEffect(() => {
