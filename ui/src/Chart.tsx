@@ -31,7 +31,8 @@ export const Chart = (metrics: MetricRequest) => {
                             dataKey={(item) => item.values[name]}
                             name={name}
                             stroke={cHash.hex(name)}
-                            activeDot={{r: 8}}
+                            activeDot={{r: 4}}
+                            dot={false}
                         />
                     );
                 })}
