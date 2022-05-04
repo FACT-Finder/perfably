@@ -12,8 +12,8 @@ import {
     Slider,
     ButtonGroup,
     Box,
-    Popover,
     ClickAwayListener,
+    Popper,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Chart} from './Chart';
@@ -144,40 +144,33 @@ const WithConfig = ({config}: {config: Config}) => {
                             );
                         })}
                     </Menu>
-                    <Popover
+                    <Popper
+                        placement="top-start"
+                        style={{maxWidth: 500, width: '100%', zIndex: 10000}}
                         anchorEl={filterAnchor}
                         open={!!filterAnchor}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left',
-                        }}
-                        PaperProps={{
-                            style: {width: '100%', maxWidth: 500},
-                        }}
                     >
                         {indexFilter !== undefined ? (
                             <ClickAwayListener onClickAway={() => setFilterAnchor(null)}>
-                                <Box paddingX={4} paddingY={2}>
-                                    <Slider
-                                        valueLabelFormat={(value) => ids[value]}
-                                        min={0}
-                                        max={ids.length - 1}
-                                        value={indexFilter}
-                                        style={{paddingTop: 50}}
-                                        valueLabelDisplay="on"
-                                        onChange={(_, value) => {
-                                            const [left, right] = value as [number, number];
-                                            setState((c) => ({...c, filter: [ids[left], ids[right]]}));
-                                        }}
-                                    />
-                                </Box>
+                                <Paper>
+                                    <Box paddingX={4} paddingY={2}>
+                                        <Slider
+                                            valueLabelFormat={(value) => ids[value]}
+                                            min={0}
+                                            max={ids.length - 1}
+                                            value={indexFilter}
+                                            style={{paddingTop: 50}}
+                                            valueLabelDisplay="on"
+                                            onChange={(_, value) => {
+                                                const [left, right] = value as [number, number];
+                                                setState((c) => ({...c, filter: [ids[left], ids[right]]}));
+                                            }}
+                                        />
+                                    </Box>
+                                </Paper>
                             </ClickAwayListener>
                         ) : undefined}
-                    </Popover>
+                    </Popper>
                 </Toolbar>
             </AppBar>
             <Box marginTop="100px" paddingX={3}>
