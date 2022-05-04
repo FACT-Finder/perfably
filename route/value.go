@@ -60,6 +60,7 @@ func Value(s *state.State) http.HandlerFunc {
 		}
 	}
 }
+
 func filter(versions semver.Versions, startStr, endStr string) (int, int, error) {
 	start, err := semver.NewVersion(startStr)
 	if err != nil && startStr != "" {

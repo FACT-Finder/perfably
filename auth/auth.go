@@ -70,7 +70,7 @@ func (a *Auth) Secure(handler http.HandlerFunc) http.HandlerFunc {
 }
 
 func (a *Auth) mutate(f func(map[string]string) error) error {
-	err := os.MkdirAll(a.directory, 0755)
+	err := os.MkdirAll(a.directory, 0o755)
 	if err != nil {
 		return err
 	}
@@ -105,6 +105,7 @@ func (a *Auth) Create(name string) (string, error) {
 	})
 	return password, err
 }
+
 func (a *Auth) Remove(name string) error {
 	return a.mutate(func(m map[string]string) error {
 		delete(m, name)
@@ -194,7 +195,6 @@ func readUserCSV(directory string) (map[string]string, error) {
 	reader.TrimLeadingSpace = true
 
 	records, err := reader.ReadAll()
-
 	if err != nil {
 		return nil, err
 	}

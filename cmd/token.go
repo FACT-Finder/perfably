@@ -7,11 +7,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const (
-	tokenLength      = 32
-	passwordStrength = 12
-)
-
 func Token() *cli.Command {
 	return &cli.Command{
 		Name:  "token",

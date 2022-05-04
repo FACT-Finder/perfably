@@ -4,6 +4,6 @@ import (
 	"embed"
 )
 
-//nolint:golint,stylecheck
+//nolint:golint
 //go:embed build
 var FS embed.FS

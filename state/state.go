@@ -23,8 +23,10 @@ type MetaValue struct {
 	URL   string `json:"url"`
 }
 
-type DataPoint map[string]float64
-type MetaPoint map[string]MetaValue
+type (
+	DataPoint map[string]float64
+	MetaPoint map[string]MetaValue
+)
 
 type State struct {
 	Projects map[string]*Project
@@ -88,7 +90,7 @@ type VersionData struct {
 }
 
 func ReadState(config *config.Config, directory string) (*State, error) {
-	err := os.MkdirAll(directory, 0755)
+	err := os.MkdirAll(directory, 0o755)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +109,7 @@ func ReadState(config *config.Config, directory string) (*State, error) {
 
 func readProject(directory, name string) (*Project, error) {
 	file := filepath.Join(directory, fmt.Sprintf("%s.v1.jsonl", name))
-	handle, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	handle, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o644)
 
 	project := &Project{
 		Lock:     &sync.RWMutex{},

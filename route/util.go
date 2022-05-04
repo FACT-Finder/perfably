@@ -11,6 +11,7 @@ func badRequest(w http.ResponseWriter, err string) {
 	w.WriteHeader(400)
 	writeString(w, err)
 }
+
 func internalServerError(w http.ResponseWriter, err string) {
 	w.WriteHeader(500)
 	writeString(w, err)

@@ -3,10 +3,10 @@ package router
 import (
 	"net/http"
 
+	"github.com/FACT-Finder/perfably/auth"
 	"github.com/FACT-Finder/perfably/config"
 	"github.com/FACT-Finder/perfably/route"
 	"github.com/FACT-Finder/perfably/state"
-	"github.com/FACT-Finder/perfably/auth"
 	"github.com/FACT-Finder/perfably/ui"
 	"github.com/gorilla/mux"
 )
