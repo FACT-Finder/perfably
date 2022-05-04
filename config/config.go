@@ -6,7 +6,6 @@ type Config struct {
 
 type Project struct {
 	Name       string       `yaml:"name" json:"name"`
-	Layers     []string     `yaml:"pattern" json:"layers"`
 	Dashboards []*Dashboard `yaml:"dashboards" json:"dashboards"`
 }
 

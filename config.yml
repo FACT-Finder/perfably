@@ -1,7 +1,6 @@
 projects:
     ff:
         id_type: semver
-        pattern: [name, metric]
         dashboards:
           - name: 'overview'
             charts:
