@@ -15,7 +15,7 @@ func Ids(state *state.State) http.HandlerFunc {
 
 		stateProject, ok := state.Projects[vars["project"]]
 		if !ok {
-			badRequest(w, fmt.Sprintf("project not found: %s", vars["project"]))
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("project not found: %s", vars["project"]))
 			return
 		}
 
@@ -24,7 +24,7 @@ func Ids(state *state.State) http.HandlerFunc {
 
 		err := json.NewEncoder(w).Encode(&stateProject.Versions)
 		if err != nil {
-			internalServerError(w, fmt.Sprintf("could not encode to json: %s", err))
+			writeError(w, http.StatusInternalServerError, fmt.Sprintf("could not encode to json: %s", err))
 		}
 	}
 }

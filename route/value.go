@@ -22,7 +22,7 @@ func Value(s *state.State) http.HandlerFunc {
 
 		project, ok := s.Projects[vars["project"]]
 		if !ok {
-			badRequest(w, fmt.Sprintf("project not found: %s", vars["project"]))
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("project not found: %s", vars["project"]))
 			return
 		}
 
@@ -31,7 +31,8 @@ func Value(s *state.State) http.HandlerFunc {
 
 		startIndex, endIndex, err := filter(project.Versions, startStr, endStr)
 		if err != nil {
-			badRequest(w, fmt.Sprintf("could not filter: %s", err))
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("could not filter: %s", err))
+			return
 		}
 
 		result := []model.ReportEntry{}
@@ -56,7 +57,7 @@ func Value(s *state.State) http.HandlerFunc {
 
 		err = json.NewEncoder(w).Encode(result)
 		if err != nil {
-			log.Warn().Err(err).Msg("could not encode to json")
+			log.Debug().Err(err).Msg("could not encode to json")
 		}
 	}
 }

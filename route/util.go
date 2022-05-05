@@ -1,25 +1,24 @@
 package route
 
 import (
-	"io"
+	"encoding/json"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
 )
 
-func badRequest(w http.ResponseWriter, err string) {
-	w.WriteHeader(400)
-	writeString(w, err)
+type Error struct {
+	Error       string `json:"error"`
+	Description string `json:"description"`
 }
 
-func internalServerError(w http.ResponseWriter, err string) {
-	w.WriteHeader(500)
-	writeString(w, err)
-}
-
-func writeString(w io.Writer, msg string) {
-	_, err := io.WriteString(w, msg)
-	if err != nil {
-		log.Warn().Err(err).Msg("could not write response")
+func writeError(w http.ResponseWriter, status int, description string) {
+	w.WriteHeader(status)
+	msg := Error{
+		Error:       http.StatusText(status),
+		Description: description,
+	}
+	if err := json.NewEncoder(w).Encode(&msg); err != nil {
+		log.Debug().Err(err).Msg("could not write response")
 	}
 }

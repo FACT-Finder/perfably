@@ -18,19 +18,19 @@ func AddReport(s *state.State) http.HandlerFunc {
 
 		id, err := semver.NewVersion(vars["id"])
 		if err != nil {
-			badRequest(w, fmt.Sprintf("invalid report id %s: %s", vars["id"], err))
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid report id %s: %s", vars["id"], err))
 			return
 		}
 
 		project, ok := s.Projects[vars["project"]]
 		if !ok {
-			badRequest(w, fmt.Sprintf("project not found: %s", vars["project"]))
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("project not found: %s", vars["project"]))
 			return
 		}
 
 		point, err := parseDataPoint(r)
 		if err != nil {
-			badRequest(w, fmt.Sprintf("could not parse request: %s", err))
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("could not parse request: %s", err))
 			return
 		}
 
@@ -44,12 +44,11 @@ func AddReport(s *state.State) http.HandlerFunc {
 			},
 		})
 		if err != nil {
-			internalServerError(w, fmt.Sprintf("could not add line: %s", err))
+			writeError(w, http.StatusInternalServerError, fmt.Sprintf("could not add line: %s", err))
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		writeString(w, "ok")
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
