@@ -17,6 +17,7 @@ func New(cfg *config.Config, s *state.State, a *auth.Auth) *mux.Router {
 	router.Methods("GET").Path("/project/{project}/id").HandlerFunc(route.Ids(s))
 	router.Methods("GET").Path("/config").HandlerFunc(route.Config(cfg))
 	router.Methods("POST").Path("/project/{project}/report/{id}").HandlerFunc(a.Secure(route.AddReport(s)))
+	router.Methods("POST").Path("/project/{project}/report/{id}/meta").HandlerFunc(a.Secure(route.AddMeta(s)))
 	router.Methods("DELETE").Path("/project/{project}/report/{id}").HandlerFunc(a.Secure(route.DeleteReport(s)))
 	router.PathPrefix("/").Handler(AddPrefix("/build", http.FileServer(http.FS(ui.FS))))
 	return router
