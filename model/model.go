@@ -12,5 +12,5 @@ type ReportEntry struct {
 }
 type MetaValue struct {
 	Value string `json:"value"`
-	URL   string `json:"url"`
+	URL   string `json:"url,omitempty"`
 }
