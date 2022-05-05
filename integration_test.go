@@ -97,22 +97,18 @@ func TestIntegration(t *testing.T) {
 
 						if update {
 							step.Status = recorder.Code
-							step.ResponseBody = nil
+							step.ResponseBody = ""
 							if recorder.Body.Len() != 0 {
-								var actual interface{}
-								err := json.Unmarshal(recorder.Body.Bytes(), &actual)
-								require.NoError(t, err)
-								step.ResponseBody = actual
+								actual := prettyPrint(t, recorder.Body.Bytes())
+								step.ResponseBody = string(actual)
 							}
 						}
 
 						require.Equal(t, step.Status, recorder.Code)
 
-						if step.ResponseBody != nil {
-							var actual interface{}
-							err := json.Unmarshal(recorder.Body.Bytes(), &actual)
-							require.NoError(t, err, "unmarshal response")
-							require.Equal(t, step.ResponseBody, actual)
+						if step.ResponseBody != "" {
+							actual := prettyPrint(t, recorder.Body.Bytes())
+							require.Equal(t, step.ResponseBody, string(actual))
 						}
 					}
 
@@ -153,7 +149,7 @@ type TestStep struct {
 	Auth         string            `yaml:"auth,omitempty"`
 	RequestBody  interface{}       `yaml:"request_body,omitempty"`
 	Status       int               `yaml:"status,omitempty"`
-	ResponseBody interface{}       `yaml:"response_body,omitempty"`
+	ResponseBody string            `yaml:"response_body,omitempty"`
 	FileContent  map[string]string `yaml:"file_content"`
 }
 
@@ -175,4 +171,10 @@ func clearDir(dir string) error {
 		}
 	}
 	return nil
+}
+func prettyPrint(t *testing.T, b []byte) []byte {
+	var out bytes.Buffer
+	err := json.Indent(&out, b, "", "  ")
+	require.NoError(t, err)
+	return out.Bytes()
 }
