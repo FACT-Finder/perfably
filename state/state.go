@@ -20,7 +20,7 @@ import (
 
 type MetaValue struct {
 	Value string `json:"value"`
-	URL   string `json:"url"`
+	URL   string `json:"url,omitempty"`
 }
 
 type (
@@ -85,8 +85,8 @@ type VersionDataLine struct {
 }
 
 type VersionData struct {
-	Values DataPoint `json:"values"`
-	Meta   MetaPoint `json:"meta"`
+	Values DataPoint `json:"values,omitempty"`
+	Meta   MetaPoint `json:"meta,omitempty"`
 }
 
 func ReadState(config *config.Config, directory string) (*State, error) {
