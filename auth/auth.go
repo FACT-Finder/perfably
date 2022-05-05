@@ -92,8 +92,7 @@ func (a *Auth) mutate(f func(map[string]string) error) error {
 	return os.Rename(file.Name(), to)
 }
 
-func (a *Auth) Create(name string) (string, error) {
-	password := token.GenerateRandomString(tokenLength)
+func (a *Auth) CreateWithPW(name, password string) (string, error) {
 	hashedPassword := token.CreatePassword(password, passwordStrength)
 	err := a.mutate(func(m map[string]string) error {
 		_, ok := m[name]
@@ -104,6 +103,11 @@ func (a *Auth) Create(name string) (string, error) {
 		return nil
 	})
 	return password, err
+}
+
+func (a *Auth) Create(name string) (string, error) {
+	password := token.GenerateRandomString(tokenLength)
+	return a.CreateWithPW(name, password)
 }
 
 func (a *Auth) Remove(name string) error {

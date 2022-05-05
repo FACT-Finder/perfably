@@ -1,0 +1,58 @@
+config:
+    projects:
+        test:
+            name: Test
+            dashboards: []
+users:
+    admin: admin
+steps:
+    - name: invalid project
+      http: GET /project/doesnotexist/id
+      status: 400
+      response_body:
+        description: 'project not found: doesnotexist'
+        error: Bad Request
+      file_content: {}
+    - name: invalid project
+      http: POST /project/doesnotexist/report/1.0.0
+      auth: admin:admin
+      request_body:
+        custom: 1.5
+        other: 0.5
+      status: 400
+      response_body:
+        description: 'project not found: doesnotexist'
+        error: Bad Request
+      file_content: {}
+    - name: invalid semver
+      http: POST /project/test/report/aoeuaoeu
+      auth: admin:admin
+      request_body:
+        custom: 1.5
+        other: 0.5
+      status: 400
+      response_body:
+        description: 'invalid report id aoeuaoeu: aoeuaoeu is not in dotted-tri format'
+        error: Bad Request
+      file_content: {}
+    - name: invalid body
+      http: POST /project/test/report/1.0.0
+      auth: admin:admin
+      request_body:
+        custom: strings not allowed
+        other: 0.5
+      status: 400
+      response_body:
+        description: 'could not parse request: invalid json: json: cannot unmarshal string into Go value of type float64'
+        error: Bad Request
+      file_content: {}
+    - name: invalid body
+      http: POST /project/test/report/1.0.0/meta
+      auth: admin:admin
+      request_body:
+        custom: strings not allowed, must be in value
+      status: 400
+      response_body:
+        description: 'could not parse request: invalid json: json: cannot unmarshal string into Go value of type state.MetaValue'
+        error: Bad Request
+      file_content: {}

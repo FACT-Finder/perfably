@@ -1,0 +1,428 @@
+config:
+    projects:
+        test:
+            name: Test
+            dashboards: []
+users:
+    admin: admin
+steps:
+    - name: has no ids
+      http: GET /project/test/id
+      status: 200
+      response_body: []
+      file_content: {}
+    - name: insert 1.0.0
+      http: POST /project/test/report/1.0.0
+      auth: admin:admin
+      request_body:
+        custom: 1.5
+        other: 0.5
+      status: 204
+      file_content: {}
+    - name: has one id
+      http: GET /project/test/id
+      status: 200
+      response_body:
+        - 1.0.0
+      file_content: {}
+    - name: get values
+      http: GET /project/test/value?key=custom&key=other
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta: {}
+          values:
+            custom: 1.5
+            other: 0.5
+      file_content: {}
+    - name: get values
+      http: GET /project/test/value?key=custom&key=other&key=new
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta: {}
+          values:
+            custom: 1.5
+            other: 0.5
+      file_content: {}
+    - name: override insert 1.0.0
+      http: POST /project/test/report/1.0.0
+      auth: admin:admin
+      request_body:
+        custom: 2
+        new: 0.5
+      status: 204
+      file_content: {}
+    - name: get values
+      http: GET /project/test/value?key=custom&key=other&key=new
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta: {}
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+      file_content: {}
+    - name: add meta 1.0.0
+      http: POST /project/test/report/1.0.0/meta
+      auth: admin:admin
+      request_body:
+        commit:
+            url: https://example.org/commit/cff6a4932
+            value: cff6a4932
+        date:
+            value: 2020-01-01T00:00:00Z
+      status: 204
+      file_content: {}
+    - name: get values
+      http: GET /project/test/value?key=custom&key=other&key=new
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+      file_content: {}
+    - name: insert 1.0.1
+      http: POST /project/test/report/1.0.1
+      auth: admin:admin
+      request_body:
+        custom: 1.7
+        other: 0.7
+      status: 204
+      file_content: {}
+    - name: insert 1.0.2
+      http: POST /project/test/report/1.0.2
+      auth: admin:admin
+      request_body:
+        custom: 1.8
+        other: 0.8
+      status: 204
+      file_content: {}
+    - name: insert 1.0.5
+      http: POST /project/test/report/1.0.5
+      auth: admin:admin
+      request_body:
+        custom: 2
+        other: 1
+      status: 204
+      file_content: {}
+    - name: has ids
+      http: GET /project/test/id
+      status: 200
+      response_body:
+        - 1.0.0
+        - 1.0.1
+        - 1.0.2
+        - 1.0.5
+      file_content: {}
+    - name: get values
+      http: GET /project/test/value?key=custom&key=other&key=new
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.2
+          meta: {}
+          values:
+            custom: 1.8
+            other: 0.8
+        - key: 1.0.5
+          meta: {}
+          values:
+            custom: 2
+            other: 1
+      file_content: {}
+    - name: insert 1.0.4 out of order
+      http: POST /project/test/report/1.0.4
+      auth: admin:admin
+      request_body:
+        custom: 1.9
+        other: 0.9
+      status: 204
+      file_content: {}
+    - name: has ids in order
+      http: GET /project/test/id
+      status: 200
+      response_body:
+        - 1.0.0
+        - 1.0.1
+        - 1.0.2
+        - 1.0.4
+        - 1.0.5
+      file_content: {}
+    - name: get values
+      http: GET /project/test/value?key=custom&key=other&key=new
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.2
+          meta: {}
+          values:
+            custom: 1.8
+            other: 0.8
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+        - key: 1.0.5
+          meta: {}
+          values:
+            custom: 2
+            other: 1
+      file_content: {}
+    - name: delete 1.0.2
+      http: DELETE /project/test/report/1.0.2
+      auth: admin:admin
+      status: 204
+      file_content: {}
+    - name: has ids in order
+      http: GET /project/test/id
+      status: 200
+      response_body:
+        - 1.0.0
+        - 1.0.1
+        - 1.0.4
+        - 1.0.5
+      file_content: {}
+    - name: get values
+      http: GET /project/test/value?key=custom&key=other&key=new
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+        - key: 1.0.5
+          meta: {}
+          values:
+            custom: 2
+            other: 1
+      file_content: {}
+    - name: with start
+      http: GET /project/test/value?key=custom&key=other&key=new&start=1.0.0
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+        - key: 1.0.5
+          meta: {}
+          values:
+            custom: 2
+            other: 1
+      file_content: {}
+    - name: with start
+      http: GET /project/test/value?key=custom&key=other&key=new&start=1.0.1
+      status: 200
+      response_body:
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+        - key: 1.0.5
+          meta: {}
+          values:
+            custom: 2
+            other: 1
+      file_content: {}
+    - name: with end
+      http: GET /project/test/value?key=custom&key=other&key=new&end=1.0.5
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+        - key: 1.0.5
+          meta: {}
+          values:
+            custom: 2
+            other: 1
+      file_content: {}
+    - name: with end
+      http: GET /project/test/value?key=custom&key=other&key=new&end=1.0.4
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+      file_content: {}
+    - name: with start & end
+      http: GET /project/test/value?key=custom&key=other&key=new&start=1.0.1&end=1.0.4
+      status: 200
+      response_body:
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+      file_content: {}
+    - name: do restart
+      restart: true
+      file_content: {}
+    - name: keeps values
+      http: GET /project/test/value?key=custom&key=other&key=new
+      status: 200
+      response_body:
+        - key: 1.0.0
+          meta:
+            commit:
+                url: https://example.org/commit/cff6a4932
+                value: cff6a4932
+            date:
+                value: "2020-01-01T00:00:00Z"
+          values:
+            custom: 2
+            new: 0.5
+            other: 0.5
+        - key: 1.0.1
+          meta: {}
+          values:
+            custom: 1.7
+            other: 0.7
+        - key: 1.0.2
+          meta: {}
+          values:
+            custom: 1.8
+            other: 0.8
+        - key: 1.0.4
+          meta: {}
+          values:
+            custom: 1.9
+            other: 0.9
+        - key: 1.0.5
+          meta: {}
+          values:
+            custom: 2
+            other: 1
+      file_content: {}
+    - name: check test.v1.jsonl
+      file_content:
+        test.v1.jsonl: |
+            {"values":{"custom":1.5,"other":0.5},"version":"1.0.0"}
+            {"values":{"custom":2,"new":0.5},"version":"1.0.0"}
+            {"meta":{"commit":{"value":"cff6a4932","url":"https://example.org/commit/cff6a4932"},"date":{"value":"2020-01-01T00:00:00Z"}},"version":"1.0.0"}
+            {"values":{"custom":1.7,"other":0.7},"version":"1.0.1"}
+            {"values":{"custom":1.8,"other":0.8},"version":"1.0.2"}
+            {"values":{"custom":2,"other":1},"version":"1.0.5"}
+            {"values":{"custom":1.9,"other":0.9},"version":"1.0.4"}
