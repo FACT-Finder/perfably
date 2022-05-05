@@ -48,7 +48,7 @@ func TestIntegration(t *testing.T) {
 			require.NoError(t, err)
 
 			for name, pass := range test.Users {
-				_, err := users.CreateWithPW(name, pass)
+				_, err := users.CreateWithPW(name, pass, 4)
 				require.NoError(t, err)
 			}
 			s, err := state.ReadState(&test.Config, workDir)
@@ -172,6 +172,7 @@ func clearDir(dir string) error {
 	}
 	return nil
 }
+
 func prettyPrint(t *testing.T, b []byte) []byte {
 	var out bytes.Buffer
 	err := json.Indent(&out, b, "", "  ")
