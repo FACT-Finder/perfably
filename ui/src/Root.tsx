@@ -233,36 +233,30 @@ const WithConfig = ({config}: {config: Config}) => {
     );
 };
 
-const Dashboard = ({
-    project,
-    dashboard,
-    range,
-}: {
-    project: string;
-    dashboard: ConfigDashboard;
-    range: [string, string];
-}) => {
-    const charts = dashboard.charts ?? [];
+const Dashboard = React.memo(
+    ({project, dashboard, range}: {project: string; dashboard: ConfigDashboard; range: [string, string]}) => {
+        const charts = dashboard.charts ?? [];
 
-    return (
-        <>
-            {charts.map((chart) => {
-                return (
-                    <Paper key={chart.name} elevation={5} style={{marginTop: 10, padding: 10}}>
-                        <Typography variant="h4" align="center">
-                            {chart.name}
-                        </Typography>
-                        <Chart
-                            sort="asc"
-                            keys={chart.metrics ?? []}
-                            unit={chart.unit}
-                            project={project}
-                            start={range[0]}
-                            end={range[1]}
-                        />
-                    </Paper>
-                );
-            })}
-        </>
-    );
-};
+        return (
+            <>
+                {charts.map((chart) => {
+                    return (
+                        <Paper key={chart.name} elevation={5} style={{marginTop: 10, padding: 10}}>
+                            <Typography variant="h4" align="center">
+                                {chart.name}
+                            </Typography>
+                            <Chart
+                                sort="asc"
+                                keys={chart.metrics ?? []}
+                                unit={chart.unit}
+                                project={project}
+                                start={range[0]}
+                                end={range[1]}
+                            />
+                        </Paper>
+                    );
+                })}
+            </>
+        );
+    }
+);
