@@ -141,7 +141,12 @@ func readProject(directory, name string) (*Project, error) {
 		data := &VersionDataLine{}
 		err = json.Unmarshal([]byte(line), data)
 		if err != nil {
-			fmt.Println(err)
+			log.Warn().
+				Err(err).
+				Str("line", line).
+				Str("file", file).
+				Int("lineNumber", rows+errs+1).
+				Msg("Parse error")
 			errs++
 			continue
 		}
