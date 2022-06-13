@@ -9,11 +9,12 @@ import {
     Typography,
     Menu,
     MenuItem,
-    Slider,
     ButtonGroup,
     Box,
     ClickAwayListener,
     Popper,
+    Autocomplete,
+    TextField,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Chart} from './Chart';
@@ -36,7 +37,26 @@ export const Root = () => {
 };
 
 const WithConfig = ({config}: {config: Config}) => {
+    const [autoCompleteFrom, setAutoCompleteFrom] = React.useState('');
+    const [autoCompleteTo, setAutoCompleteTo] = React.useState('');
+
     const [{project, dashboard, filter}, setState] = useUrlChangableState();
+    React.useEffect(() => {
+        if (filter) {
+            setAutoCompleteFrom(filter[0]);
+            setAutoCompleteTo(filter[1]);
+        }
+    }, [filter, setAutoCompleteTo, setAutoCompleteFrom]);
+
+    const setFilter = React.useCallback(
+        (from: string, to: string) => {
+            setAutoCompleteFrom(from);
+            setAutoCompleteTo(to);
+            setState((c) => ({...c, filter: [from, to]}));
+        },
+        [setState, setAutoCompleteTo, setAutoCompleteFrom]
+    );
+
     React.useEffect(() => {
         const projects = Object.keys(config.projects);
         let nextState = {project, dashboard};
@@ -66,14 +86,11 @@ const WithConfig = ({config}: {config: Config}) => {
     const [filterAnchor, setFilterAnchor] = React.useState<null | HTMLElement>(null);
     const ids = useIds(project);
 
-    const start = ids.findIndex((id) => id === filter?.[0]);
-    const end = ids.findIndex((id) => id === filter?.[1]);
     React.useEffect(() => {
-        if (ids.length > 0 && (start === -1 || end === -1)) {
-            setState((c) => ({...c, filter: [ids[Math.max(0, ids.length - 1 - 50)], ids[ids.length - 1]]}));
+        if (ids.length > 0 && (filter === undefined || filter.some((v) => !ids.includes(v)))) {
+            setFilter(ids[Math.max(0, ids.length - 1 - 50)], ids[ids.length - 1]);
         }
-    }, [ids, start, end, setState]);
-    const indexFilter: [number, number] | undefined = start !== -1 && end !== -1 ? [start, end] : undefined;
+    }, [ids, filter, setFilter]);
 
     return (
         <Box>
@@ -146,25 +163,56 @@ const WithConfig = ({config}: {config: Config}) => {
                     </Menu>
                     <Popper
                         placement="top-start"
-                        style={{maxWidth: 500, width: '100%', zIndex: 10000}}
+                        style={{maxWidth: 500, zIndex: 1200}}
                         anchorEl={filterAnchor}
                         open={!!filterAnchor}
                     >
-                        {indexFilter !== undefined ? (
+                        {filter !== undefined ? (
                             <ClickAwayListener onClickAway={() => setFilterAnchor(null)}>
                                 <Paper>
-                                    <Box paddingX={4} paddingY={2}>
-                                        <Slider
-                                            valueLabelFormat={(value) => ids[value]}
-                                            min={0}
-                                            max={ids.length - 1}
-                                            value={indexFilter}
-                                            style={{paddingTop: 50}}
-                                            valueLabelDisplay="on"
-                                            onChange={(_, value) => {
-                                                const [left, right] = value as [number, number];
-                                                setState((c) => ({...c, filter: [ids[left], ids[right]]}));
+                                    <Box padding={2} display="flex" alignItems="center">
+                                        <Autocomplete
+                                            size="small"
+                                            options={ids}
+                                            value={autoCompleteFrom}
+                                            style={{width: 150}}
+                                            freeSolo={false}
+                                            onChange={(_, fromFilter, reason) => {
+                                                if (reason === 'selectOption') {
+                                                    const fromIndex = ids.indexOf(fromFilter!);
+                                                    let toFilter = filter[1];
+                                                    if (fromIndex > ids.indexOf(toFilter)) {
+                                                        toFilter = ids[Math.min(ids.length - 1, fromIndex + 50)];
+                                                    }
+                                                    setFilter(fromFilter!, toFilter);
+                                                } else {
+                                                    setAutoCompleteFrom(fromFilter!);
+                                                }
                                             }}
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                        <Box paddingX={2}>
+                                            <Typography>to</Typography>
+                                        </Box>
+                                        <Autocomplete
+                                            size="small"
+                                            options={ids}
+                                            freeSolo={false}
+                                            value={autoCompleteTo}
+                                            style={{width: 150}}
+                                            onChange={(_, toFilter, reason) => {
+                                                if (reason === 'selectOption') {
+                                                    const toIndex = ids.indexOf(toFilter!);
+                                                    let fromFilter = filter[0];
+                                                    if (toIndex < ids.indexOf(fromFilter)) {
+                                                        fromFilter = ids[Math.max(0, toIndex - 50)];
+                                                    }
+                                                    setFilter(fromFilter, toFilter!);
+                                                } else {
+                                                    setAutoCompleteTo(toFilter!);
+                                                }
+                                            }}
+                                            renderInput={(params) => <TextField {...params} />}
                                         />
                                     </Box>
                                 </Paper>
