@@ -1,0 +1,345 @@
+openapi: "3.0.0"
+info:
+  title: Perfably
+  version: 1.0.0
+  description: |
+    The API documentation of perfably
+  contact:
+    name: GitHub
+    url: https://github.com/FACT-Finder/perfably
+    email: ff-dev@fact-finder.com
+  license:
+    name: "AGPL-3"
+    url: "https://github.com/FACT-Finder/perfably/blob/main/LICENSE"
+paths:
+  /config:
+    get:
+      operationId: getConfig
+      summary: Add metrics to a specific version
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Config"
+
+  /project/{project}/value:
+    get:
+      operationId: getValues
+      summary: Get metrics and meta data.
+      parameters:
+        - name: project
+          in: path
+          description: The project
+          required: true
+          schema:
+            type: string
+        - name: key
+          in: query
+          style: form
+          explode: true
+          description: The metrics to return.
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              example: "lines_of_code"
+        - name: start
+          description: Only include reports that are bigger or equal than this version
+          in: query
+          schema:
+            type: string
+        - name: end
+          description: Only include reports that are smaller or equal than this version
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReportEntry"
+        default:
+          description: >-
+            Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /project/{project}/id:
+    get:
+      operationId: getIds
+      summary: Get all ids
+      parameters:
+        - name: project
+          in: path
+          description: The project
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                example: >-
+                  ["1.0.0", "1.0.1", "1.2.0"]
+                type: array
+                items:
+                  type: string
+        default:
+          description: >-
+            Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /project/{project}/report/{version}:
+    delete:
+      operationId: deleteReport
+      summary: Remove a report with all metrics and meta values.
+      security:
+        - basic: []
+      parameters:
+        - name: project
+          in: path
+          description: The project
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          description: The version of the report
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: >-
+            The report was deleted.
+        default:
+          description: >-
+            Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: addMetrics
+      summary: Add metrics to a specific version
+      description: |
+        If a metric already exists it will be overridden.
+      security:
+        - basic: []
+      parameters:
+        - name: project
+          in: path
+          description: The project
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          description: The version of the report
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Metrics"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Metrics"
+      responses:
+        "204":
+          description: >-
+            The metrics were successfully added.
+        default:
+          description: >-
+            Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /project/{project}/report/{version}/meta:
+    post:
+      operationId: addMeta
+      summary: Add meta to a specific version
+      description: |
+        If a meta key already exists it will be overridden.
+      security:
+        - basic: []
+      parameters:
+        - name: project
+          in: path
+          description: The project
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          description: The version of the report
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MetaValues"
+      responses:
+        "204":
+          description: >-
+            The meta values were successfully added.
+        default:
+          description: >-
+            Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+components:
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+  schemas:
+    ReportEntry:
+      type: object
+      required:
+        - key
+        - values
+        - meta
+      properties:
+        key:
+          type: string
+          example: "1.0.5"
+        meta:
+          $ref: "#/components/schemas/MetaValues"
+        values:
+          $ref: "#/components/schemas/Metrics"
+    Config:
+      type: object
+      example: >-
+        {
+          "projects": {
+            "myproject": {
+              "name": "My Project",
+              "dashboards": [
+                {
+                  "name": "Stats",
+                  "charts": [
+                    {"name": "LOC", "metrics": ["lines_of_code"]}
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      required:
+        - projects
+      properties:
+        projects:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ConfigProject"
+    ConfigProject:
+      type: object
+      required:
+        - name
+        - dashboards
+      properties:
+        name:
+          type: string
+        dashboards:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConfigDashboard"
+    ConfigDashboard:
+      type: object
+      required:
+        - name
+        - charts
+      properties:
+        name:
+          type: string
+        charts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConfigChart"
+    ConfigChart:
+      type: object
+      required:
+        - name
+        - metrics
+      properties:
+        name:
+          type: string
+        unit:
+          type: string
+        metrics:
+          type: array
+          items:
+            type: string
+    ApiError:
+      type: object
+      required:
+        - error
+        - description
+      properties:
+        error:
+          type: string
+          example: Bad Request
+        description:
+          type: string
+          example: "could not parse request: invalid json: EOF"
+    Metrics:
+      type: object
+      additionalProperties:
+        type: number
+        format: double
+      example: >-
+        {
+          "lines_of_code": 5,
+          "parallel_quering_ms(avg)": 100,
+          "parallel_quering_ms(99percentile)": 900
+        }
+    MetaValues:
+      type: object
+      description:
+        The meta values represent additional informantion that is displayed
+        with the metrics.
+      example: >-
+        {
+          "commit": {
+            "value": "81b8459",
+            "url": "https://github.com/FACT-Finder/perfably/commit/81b845912f71c104a00f1ffe7d27e6923ed80f99"
+          },
+          "date": {"value": "2022-03-05"}
+        }
+      additionalProperties:
+        $ref: "#/components/schemas/MetaValue"
+    MetaValue:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          description: |
+            The value of the meta item.
+        url:
+          type: string
+          description: |
+            An optional URL that will be opened when the meta item is clicked.

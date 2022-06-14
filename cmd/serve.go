@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"github.com/FACT-Finder/perfably/api"
 	"github.com/FACT-Finder/perfably/auth"
 	"github.com/FACT-Finder/perfably/config"
-	"github.com/FACT-Finder/perfably/router"
 	"github.com/FACT-Finder/perfably/server"
 	"github.com/FACT-Finder/perfably/state"
 	"github.com/rs/zerolog/log"
@@ -53,11 +53,11 @@ func Serve() *cli.Command {
 				return err
 			}
 
-			handler := router.New(cfg, appState, users)
+			app := api.New(cfg, appState, users)
 
 			listenAddr := c.String("address")
 			log.Info().Str("address", listenAddr).Msg("HTTP")
-			err = server.Start(handler, listenAddr)
+			err = server.Start(app, listenAddr)
 
 			appState.Close()
 			return err

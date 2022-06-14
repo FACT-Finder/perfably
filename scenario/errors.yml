@@ -11,8 +11,8 @@ steps:
       status: 400
       response_body: |
         {
-          "error": "Bad Request",
-          "description": "project not found: doesnotexist"
+          "description": "project not found: doesnotexist",
+          "error": "Bad Request"
         }
       file_content: {}
     - name: invalid project
@@ -24,8 +24,8 @@ steps:
       status: 400
       response_body: |
         {
-          "error": "Bad Request",
-          "description": "project not found: doesnotexist"
+          "description": "project not found: doesnotexist",
+          "error": "Bad Request"
         }
       file_content: {}
     - name: invalid semver
@@ -37,8 +37,8 @@ steps:
       status: 400
       response_body: |
         {
-          "error": "Bad Request",
-          "description": "invalid report id aoeuaoeu: aoeuaoeu is not in dotted-tri format"
+          "description": "invalid report id aoeuaoeu: aoeuaoeu is not in dotted-tri format",
+          "error": "Bad Request"
         }
       file_content: {}
     - name: invalid body
@@ -50,8 +50,8 @@ steps:
       status: 400
       response_body: |
         {
-          "error": "Bad Request",
-          "description": "could not parse request: invalid json: json: cannot unmarshal string into Go value of type float64"
+          "description": "could not parse request: invalid json: json: cannot unmarshal string into Go value of type float64",
+          "error": "Bad Request"
         }
       file_content: {}
     - name: invalid body
@@ -62,7 +62,7 @@ steps:
       status: 400
       response_body: |
         {
-          "error": "Bad Request",
-          "description": "could not parse request: invalid json: json: cannot unmarshal string into Go value of type state.MetaValue"
+          "description": "could not parse request: invalid json: json: cannot unmarshal string into Go value of type state.MetaValue",
+          "error": "Bad Request"
         }
       file_content: {}
