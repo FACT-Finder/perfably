@@ -1,0 +1,36 @@
+# projects is a map from project name to an object when doing API calls, the
+# project name inside the path must exist in this config. Projects doesn't
+# share metrics.
+projects:
+  example:
+    # Each project has a list of dashboards
+    dashboards:
+      - name: Overview
+        charts:
+          # The name of the Dashboard
+          - name: Request Durations
+            # (optional) The unit of the metrics in the dashboard. If set, the
+            # UI will dynamically select an appropriate unit to convert all
+            # metrics to.
+            #
+            # supported units: ns(nano seconds), us(microsecond),
+            # ms(millisecond), s(second), m(minute), h(hour)
+            unit: ms
+            # The metrics that the chart should contain.
+            metrics:
+              - add.avg
+              - delete.avg
+              - update.avg
+          - name: "code coverage"
+            metrics:
+              - loc.total
+              - loc.covered
+  other:
+    dashboards:
+      - name: Overview
+        charts:
+          - name: "Other request durations"
+            unit: ms
+            metrics:
+              - insert.avg
+              - delete.avg
