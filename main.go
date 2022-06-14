@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+//go:generate oapi-codegen -config ./openapi-gen.yml openapi.yaml
 func main() {
 	logger.Init(zerolog.InfoLevel)
 	app := &cli.App{

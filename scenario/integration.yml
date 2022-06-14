@@ -35,11 +35,11 @@ steps:
         [
           {
             "key": "1.0.0",
+            "meta": {},
             "values": {
               "custom": 1.5,
               "other": 0.5
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -50,11 +50,11 @@ steps:
         [
           {
             "key": "1.0.0",
+            "meta": {},
             "values": {
               "custom": 1.5,
               "other": 0.5
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -73,12 +73,12 @@ steps:
         [
           {
             "key": "1.0.0",
+            "meta": {},
             "values": {
               "custom": 2,
               "new": 0.5,
               "other": 0.5
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -100,19 +100,19 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           }
         ]
@@ -159,44 +159,44 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           },
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.2",
+            "meta": {},
             "values": {
               "custom": 1.8,
               "other": 0.8
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.5",
+            "meta": {},
             "values": {
               "custom": 2,
               "other": 1
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -227,52 +227,52 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           },
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.2",
+            "meta": {},
             "values": {
               "custom": 1.8,
               "other": 0.8
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.5",
+            "meta": {},
             "values": {
               "custom": 2,
               "other": 1
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -299,44 +299,44 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           },
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.5",
+            "meta": {},
             "values": {
               "custom": 2,
               "other": 1
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -347,44 +347,44 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           },
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.5",
+            "meta": {},
             "values": {
               "custom": 2,
               "other": 1
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -395,27 +395,27 @@ steps:
         [
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.5",
+            "meta": {},
             "values": {
               "custom": 2,
               "other": 1
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -426,44 +426,44 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           },
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.5",
+            "meta": {},
             "values": {
               "custom": 2,
               "other": 1
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -474,36 +474,36 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           },
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -514,19 +514,19 @@ steps:
         [
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}
@@ -540,52 +540,52 @@ steps:
         [
           {
             "key": "1.0.0",
-            "values": {
-              "custom": 2,
-              "new": 0.5,
-              "other": 0.5
-            },
             "meta": {
               "commit": {
-                "value": "cff6a4932",
-                "url": "https://example.org/commit/cff6a4932"
+                "url": "https://example.org/commit/cff6a4932",
+                "value": "cff6a4932"
               },
               "date": {
                 "value": "2020-01-01T00:00:00Z"
               }
+            },
+            "values": {
+              "custom": 2,
+              "new": 0.5,
+              "other": 0.5
             }
           },
           {
             "key": "1.0.1",
+            "meta": {},
             "values": {
               "custom": 1.7,
               "other": 0.7
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.2",
+            "meta": {},
             "values": {
               "custom": 1.8,
               "other": 0.8
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.4",
+            "meta": {},
             "values": {
               "custom": 1.9,
               "other": 0.9
-            },
-            "meta": {}
+            }
           },
           {
             "key": "1.0.5",
+            "meta": {},
             "values": {
               "custom": 2,
               "other": 1
-            },
-            "meta": {}
+            }
           }
         ]
       file_content: {}

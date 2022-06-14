@@ -23,3 +23,5 @@ yarn-error.log*
 /ui/build/KEEP
 /perfably
 /data
+*_generated.go
+swagger/dist/

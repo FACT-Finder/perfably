@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/FACT-Finder/perfably/token"
 	"github.com/fsnotify/fsnotify"
+	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -42,13 +42,12 @@ type Auth struct {
 	directory string
 }
 
-func (a *Auth) Secure(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		user, pass, ok := r.BasicAuth()
+func (a *Auth) Secure(handler echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user, pass, ok := c.Request().BasicAuth()
 
 		if !ok {
-			unauthorized(w, a.realm)
-			return
+			return unauthorized(c, a.realm, "no credentials provided")
 		}
 
 		a.lock.Lock()
@@ -56,16 +55,14 @@ func (a *Auth) Secure(handler http.HandlerFunc) http.HandlerFunc {
 		a.lock.Unlock()
 
 		if !ok {
-			unauthorized(w, a.realm)
-			return
+			return unauthorized(c, a.realm, "user / password combination does not exist")
 		}
 
 		if !token.ComparePassword([]byte(hash), []byte(pass)) {
-			unauthorized(w, a.realm)
-			return
+			return unauthorized(c, a.realm, "user / password combination does not exist")
 		}
 
-		handler(w, r)
+		return handler(c)
 	}
 }
 
@@ -172,10 +169,9 @@ func (a *Auth) HotReload() error {
 	return nil
 }
 
-func unauthorized(w http.ResponseWriter, realm string) {
-	w.Header().Set("WWW-Authenticate", `Basic realm="`+realm+`"`)
-	w.WriteHeader(401)
-	io.WriteString(w, "unauthorized")
+func unauthorized(c echo.Context, realm, reason string) error {
+	c.Response().Header().Set("WWW-Authenticate", `Basic realm="`+realm+`"`)
+	return echo.NewHTTPError(http.StatusUnauthorized, reason)
 }
 
 type UserPW struct {

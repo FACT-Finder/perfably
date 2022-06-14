@@ -14,9 +14,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/FACT-Finder/perfably/api"
 	"github.com/FACT-Finder/perfably/auth"
 	"github.com/FACT-Finder/perfably/config"
-	"github.com/FACT-Finder/perfably/router"
 	"github.com/FACT-Finder/perfably/state"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
@@ -57,7 +57,7 @@ func TestIntegration(t *testing.T) {
 			}()
 			require.NoError(t, err)
 
-			handler := router.New(&test.Config, s, users)
+			handler := api.New(&test.Config, s, users)
 
 			for i, step := range test.Steps {
 				t.Run(fmt.Sprintf("%d_%s", i, step.Name), func(t *testing.T) {
@@ -69,7 +69,7 @@ func TestIntegration(t *testing.T) {
 						s, err = state.ReadState(&test.Config, workDir)
 						require.NoError(t, err)
 
-						handler = router.New(&test.Config, s, users)
+						handler = api.New(&test.Config, s, users)
 						return
 					}
 
