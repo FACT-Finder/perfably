@@ -22,9 +22,7 @@ linters:
         - misspell
         - nakedret
         - nolintlint
-        - sqlclosecheck
         - staticcheck
-        - structcheck
         - stylecheck
         - typecheck
         - unconvert
@@ -48,6 +46,7 @@ linters:
         - noctx
         - testpackage
         - wsl
+        - structcheck
 
 linters-settings:
     gofumpt:
