@@ -564,14 +564,6 @@ steps:
             }
           },
           {
-            "key": "1.0.2",
-            "meta": {},
-            "values": {
-              "custom": 1.8,
-              "other": 0.8
-            }
-          },
-          {
             "key": "1.0.4",
             "meta": {},
             "values": {
@@ -599,3 +591,4 @@ steps:
             {"values":{"custom":1.8,"other":0.8},"version":"1.0.2"}
             {"values":{"custom":2,"other":1},"version":"1.0.5"}
             {"values":{"custom":1.9,"other":0.9},"version":"1.0.4"}
+            {"version":"1.0.2","delete":true}
