@@ -61,6 +61,17 @@ func (p *Project) sortVersions() {
 }
 
 func (p *Project) addInternal(line *VersionDataLine) {
+	if line.Delete {
+		idx := sort.Search(len(p.Versions), func(i int) bool {
+			return !p.Versions[i].LessThan(line.Version)
+		})
+		if idx < len(p.Versions) && *p.Versions[idx] == line.Version {
+			delete(p.Data, line.Version)
+			p.Versions = append(p.Versions[:idx], p.Versions[idx+1:]...)
+		}
+		return
+	}
+
 	data, ok := p.Data[line.Version]
 	if !ok {
 		data = &VersionData{Values: DataPoint{}, Meta: MetaPoint{}}
@@ -82,6 +93,7 @@ func (p *Project) addInternal(line *VersionDataLine) {
 type VersionDataLine struct {
 	VersionData
 	Version semver.Version `json:"version"`
+	Delete  bool           `json:"delete,omitempty"`
 }
 
 type VersionData struct {
